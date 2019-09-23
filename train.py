@@ -59,7 +59,10 @@ for e in tqdm(range(epochs)):
 		score_maps_pred, geometry_maps_pred = model.forward(images)
 		print("score_maps_pred", score_maps_pred.size(), "geometry_maps_pred", geometry_maps_pred.size())
 		
-		mini_batch_loss = loss_function.compute_loss(score_maps, score_maps_pred, geometry_maps, geometry_maps_pred)
+		mini_batch_loss = loss_function.compute_loss(score_maps.double(), 
+			score_maps_pred.double(),
+			geometry_maps.double(), 
+			geometry_maps_pred.double())
 		print("Score Loss:", loss_function.loss_of_score)
 		print("Geometry Loss:", loss_function.loss_of_geometry)
 		print("Loss:", mini_batch_loss)
