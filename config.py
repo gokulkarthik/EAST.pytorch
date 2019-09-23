@@ -15,6 +15,7 @@ class Config:
     dev_data_dir = os.path.join(data_dir, 'dev')
     test_data_dir = os.path.join(data_dir, 'test')
 
+    cuda = True
     lambda_geometry = 1
     epochs = 5
     learning_rate = 0.01

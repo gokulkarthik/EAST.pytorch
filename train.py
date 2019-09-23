@@ -16,6 +16,7 @@ train_data_dir = config["train_data_dir"]
 mini_batch_size = config["mini_batch_size"]
 epochs = config["epochs"]
 save_step = config["save_step"]
+cuda = config["cuda"]
 
 train_images_dir = os.path.join(train_data_dir, "images")
 train_annotations_dir = os.path.join(train_data_dir, "annotations")
@@ -29,6 +30,8 @@ n_mini_batches = len(trainset)//mini_batch_size + int(len(trainset)%mini_batch_s
 print("Number of mini batches:", n_mini_batches) 
 
 model = EAST(geometry=config["geometry"])
+if cuda:
+	model.cuda()
 loss_function = LossFunction()
 optimizer = torch.optim.Adam(model.parameters(), lr=1e-4)
 scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=10000, gamma=0.94)
@@ -46,9 +49,10 @@ for e in tqdm(range(epochs)):
 		optimizer.zero_grad()
 
 		images, score_maps, geometry_maps = train_egs  
-		images = Variable(images.cuda())
-		score_maps = Variable(score_maps.cuda())
-		geometry_maps = Variable(geometry_maps.cuda())
+		if cuda:
+			images = Variable(images.cuda())
+			score_maps = Variable(score_maps.cuda())
+			geometry_maps = Variable(geometry_maps.cuda())
 		print("images", images.size())
 		print("score_maps", score_maps.size(), "geometry_maps", geometry_maps.size())
 
