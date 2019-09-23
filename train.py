@@ -90,7 +90,7 @@ with torch.autograd.set_detect_anomaly(True):
 			torch.save(model.state_dict(), './checkpoints/model_{}.pth'.format(e + 1))
 
 		if not os.path.exists('./plots'):
-		os.mkdir('./plots')
+			os.mkdir('./plots')
 
 		plt.plot(losses)
 		plt.xticks(range(1, epochs+1))
