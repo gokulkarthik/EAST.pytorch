@@ -88,7 +88,7 @@ class LossFunction(nn.Module):
 					#loss /= geometry_beta
 					loss_of_geometry += loss
 
-		loss_of_geometry /= float(m)
+		loss_of_geometry /= float(m * n_H * n_W)
 		loss_of_geometry *= lambda_geometry
 
 		return loss_of_geometry
