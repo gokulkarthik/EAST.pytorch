@@ -46,10 +46,10 @@ class LossFunction(nn.Module):
 		smoothed_l1_loss = 0
 		for l1 in l1_loss:
 			if l1 < 1:
-				l1 = 0.5 * l1 * l1
+				l1_new = 0.5 * l1 * l1
 			else:
-				l1 -= 0.5
-			smoothed_l1_loss += l1
+				l1_new = l1 - 0.5
+			smoothed_l1_loss += l1_new
 
 		return smoothed_l1_loss
 
