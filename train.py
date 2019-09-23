@@ -46,6 +46,7 @@ with torch.autograd.set_detect_anomaly(True):
 		epoch_score_loss = 0
 		epoch_geometry_loss = 0
 
+		tic = time.time()
 		for i, train_egs in tqdm(enumerate(train_loader), total=n_mini_batches, desc="Training Mini Batches:"):
 			optimizer.zero_grad()
 
@@ -64,9 +65,9 @@ with torch.autograd.set_detect_anomaly(True):
 				score_maps_pred.double(),
 				geometry_maps.double(), 
 				geometry_maps_pred.double())
-			print("Score Loss:", loss_function.loss_of_score.item())
-			print("Geometry Loss:", loss_function.loss_of_geometry.item())
-			print("Loss:", mini_batch_loss.item())
+			#print("Score Loss:", loss_function.loss_of_score.item())
+			#print("Geometry Loss:", loss_function.loss_of_geometry.item())
+			#print("Loss:", mini_batch_loss.item())
 			epoch_loss += mini_batch_loss.item()
 			epoch_score_loss += loss_function.loss_of_score.item()
 			epoch_geometry_loss += loss_function.loss_of_geometry.item()
@@ -80,6 +81,12 @@ with torch.autograd.set_detect_anomaly(True):
 		epoch_loss /= n_mini_batches
 		epoch_score_loss /= n_mini_batches
 		epoch_geometry_loss /= n_mini_batches
+		toc = time.time()
+		print("Epoch:{}  Loss:{:.6f}  ScoreLoss:{.6f}  GeometryLoss:{.6f}  Duration:{}".format(e+1, 
+			epoch_loss, 
+			epoch_score_loss, 
+			epoch_geometry_loss,
+			toc-tic))
 		losses.append(epoch_loss)
 		score_losses.append(epoch_score_loss)
 		geometry_losses.append(epoch_geometry_loss)
