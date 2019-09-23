@@ -181,9 +181,9 @@ class EAST(nn.Module):
         elif self.geometry == "QUAD":
             geometry_map = geo_map
 
-        print("pool1", pool5.size())
-        print("h1", h[0].size())
-        print("g1", g[0].size())
+        #print("pool1", pool5.size())
+        #print("h1", h[0].size())
+        #print("g1", g[0].size())
 
         return score_map, geometry_map
 

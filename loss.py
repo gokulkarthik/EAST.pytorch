@@ -99,6 +99,7 @@ class LossFunction(nn.Module):
 		y_true_score, y_pred_score: [m, 1, 128, 128]
 		y_true_geometry, y_pred_geometry: [m, 8, 128, 128]
 		"""
+		print(type(Y_pred_score), type(Y_pred_score))
 		self.loss_of_score = self.compute_score_loss(Y_true_score, Y_pred_score)
 		self.loss_of_geometry = self.compute_geometry_loss(Y_true_geometry, Y_pred_geometry, lambda_geometry)
 		self.loss = self.loss_of_score + self.loss_of_geometry
