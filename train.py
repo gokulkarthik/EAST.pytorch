@@ -45,7 +45,7 @@ for e in tqdm(range(epochs), desc="Epochs:"):
 	epoch_score_loss = 0
 	epoch_geometry_loss = 0
 
-	for i, train_egs in tqdm(enumerate(train_loader), total=n_mini_batches):
+	for i, train_egs in tqdm(enumerate(train_loader), total=n_mini_batches, desc="Training Mini Batches:"):
 		optimizer.zero_grad()
 
 		images, score_maps, geometry_maps = train_egs  
