@@ -6,11 +6,11 @@ import torchvision
 import math
 
 config = {k:v for k,v in vars(Config).items() if not k.startswith("__")}
-print(config)
 
 """
 Reference: https://github.com/liushuchun/EAST.pytorch
 """
+
 class EAST(nn.Module):
 
 
