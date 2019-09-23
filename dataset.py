@@ -14,8 +14,14 @@ Reference: https://github.com/liushuchun/EAST.pytorch
 
 config = {k:v for k,v in vars(Config).items() if not k.startswith("__")}
 geometry = config['geometry']
+label_method = config['label_method']
+image_size = config['image_size']
+n_H, n_W, n_C = image_size
+
 if geometry == "RBOX":
 	raise NotImplementedError("Only implemented for the QUAD geometry")
+if label_method == "multiple":
+    raise NotImplementedError("Only implemented for the single label method")
 
 
 def list_images(images_dir):
@@ -56,10 +62,12 @@ def load_coords(annotation_path):
     
     return coords
 
+
 def load_image(image_path):
 
 	image = cv2.imread(image_path)
 	image = image[:, :, ::-1] # BGR to RGB
+    image = image.astype(np.float32)
 
 	return image
 
@@ -67,6 +75,12 @@ def load_image(image_path):
 def load_score_and_geometry_map(annotation_path):
 
 	coords = load_coords(annotation_path)
+
+    if label_method == "simple":
+
+
+    elif label_method == "multiple":
+        pass
 
 	return score_map, geometry_map
 
@@ -84,7 +98,10 @@ class ImageDataSet(torch.utils.data.Dataset):
     	annotation_name = image_name.split(".")[0] + ".csv"
     	image_path = os.path.join(self.images_dir, image_name)
     	annotation_path = os.path.join(self.annotations_dir, annotation_name)
+        # image -> [3, 512, 512]
     	image = load_image(image_path)
+        print("Image Size:", image.size())
+        # score_map -> [1, 128, 128]; geometry_map -> [8, 128, 128]
     	score_map, geometry_map = load_score_and_geometry_map(annotation_path)
         
         return image, score_map, geometry_map
@@ -92,3 +109,23 @@ class ImageDataSet(torch.utils.data.Dataset):
     def __len__(self):
         
         return len(self.image_names)
+
+
+# test code
+train_data_dir = config["train_data_dir"]
+mini_batch_size = config["mini_batch_size"]
+train_images_dir = os.path.join(train_data_dir, "images")
+train_annotations_dir = os.path.join(train_data_dir, "annotations")
+
+trainset = ImageDataSet(train_images_dir, train_annotations_dir)
+trainloader = DataLoader(trainset, batch_size=mini_batch_size, shuffle=True)
+print("Number of examples:", len(trainset))
+print("Mini batch size:", mini_batch_size)
+n_mini_batches = len(trainset)//mini_batch_size + int(len(trainset)%mini_batch_size!=0)
+print("Number of mini batches:", n_mini_batches) 
+
+for i, (image, score_map, geometry_map) in tqdm(enumerate(trainloader), total=n_mini_batches):
+            
+    print(image.size())
+    print(score_map.size(), geometry_map.size())
+    time.sleep(10)

@@ -4,7 +4,11 @@ class Config:
 
 	user = "gokul"
 	lang = "hindi"
+
+
+	image_size = [512, 512, 3]
 	geometry = "QUAD" # ["RBOX", "QUAD"]
+	label_method = "single" # ["single", "multiple"]
 
 	max_m_train = 10000
 	data_dir = "/home/{}/data-split/{}".format(user, lang)
