@@ -39,7 +39,7 @@ scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=10000, gamma=0.
 losses = []
 score_losses = []
 geometry_losses = []
-for e in tqdm(range(epochs)):
+for e in tqdm(range(epochs), desc="Epochs:"):
 	model = model.train()
 	epoch_loss = 0
 	epoch_score_loss = 0
@@ -53,19 +53,19 @@ for e in tqdm(range(epochs)):
 			images = Variable(images.cuda())
 			score_maps = Variable(score_maps.cuda())
 			geometry_maps = Variable(geometry_maps.cuda())
-		print("images", images.size())
-		print("score_maps", score_maps.size(), "geometry_maps", geometry_maps.size())
+		#print("images", images.size())
+		#print("score_maps", score_maps.size(), "geometry_maps", geometry_maps.size())
 
 		score_maps_pred, geometry_maps_pred = model.forward(images)
-		print("score_maps_pred", score_maps_pred.size(), "geometry_maps_pred", geometry_maps_pred.size())
+		#print("score_maps_pred", score_maps_pred.size(), "geometry_maps_pred", geometry_maps_pred.size())
 		
 		mini_batch_loss = loss_function.compute_loss(score_maps.double(), 
 			score_maps_pred.double(),
 			geometry_maps.double(), 
 			geometry_maps_pred.double())
-		print("Score Loss:", loss_function.loss_of_score)
-		print("Geometry Loss:", loss_function.loss_of_geometry)
-		print("Loss:", mini_batch_loss)
+		print("Score Loss:", loss_function.loss_of_score.item())
+		print("Geometry Loss:", loss_function.loss_of_geometry.item())
+		print("Loss:", mini_batch_loss.item())
 		epoch_loss += mini_batch_loss.item()
 		epoch_score_loss += loss_function.loss_of_score.item()
 		epoch_geometry_loss += loss_function.loss_of_geometry.item()
