@@ -2,6 +2,7 @@ from config import Config
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from torch.autograd import Variable
 import os 
 import numpy as np
 from model import EAST
@@ -42,7 +43,6 @@ for e in tqdm(range(epochs)):
 	epoch_geometry_loss = 0
 
 	for i, train_egs in tqdm(enumerate(train_loader), total=n_mini_batches):
-		scheduler.step()
 		optimizer.zero_grad()
 
 		images, score_maps, geometry_maps = train_egs  
@@ -65,6 +65,7 @@ for e in tqdm(range(epochs)):
 
 		mini_batch_loss.backward()
 		optimizer.step()
+		scheduler.step()
 
 		time.sleep(5)
 
