@@ -39,7 +39,8 @@ scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=10000, gamma=0.
 losses = []
 score_losses = []
 geometry_losses = []
-for e in tqdm(range(epochs), desc="Epochs:"):
+with torch.autograd.set_detect_anomaly(True):
+	for e in tqdm(range(epochs), desc="Epochs:"):
 	model = model.train()
 	epoch_loss = 0
 	epoch_score_loss = 0
@@ -87,27 +88,27 @@ for e in tqdm(range(epochs), desc="Epochs:"):
 		if not os.path.exists('./checkpoints'):
 			os.mkdir('./checkpoints')
 		torch.save(model.state_dict(), './checkpoints/model_{}.pth'.format(e + 1))
-    
-if not os.path.exists('./plots'):
+
+	if not os.path.exists('./plots'):
 	os.mkdir('./plots')
 
-plt.plot(losses)
-plt.xticks(range(1, epochs+1))
-plt.xlabel("epochs")
-plt.ylabel("loss")
-plt.show()
-plt.savefig('plots/loss.png')
+	plt.plot(losses)
+	plt.xticks(range(1, epochs+1))
+	plt.xlabel("epochs")
+	plt.ylabel("loss")
+	plt.show()
+	plt.savefig('plots/loss.png')
 
-plt.plot(score_losses)
-plt.xticks(range(1, epochs+1))
-plt.xlabel("epochs")
-plt.ylabel("score loss")
-plt.show()
-plt.savefig('plots/score_loss.png')
+	plt.plot(score_losses)
+	plt.xticks(range(1, epochs+1))
+	plt.xlabel("epochs")
+	plt.ylabel("score loss")
+	plt.show()
+	plt.savefig('plots/score_loss.png')
 
-plt.plot(geometry_losses)
-plt.xticks(range(1, epochs+1))
-plt.xlabel("epochs")
-plt.ylabel("geometry loss")
-plt.show()
-plt.savefig('plots/geometry_loss.png')
+	plt.plot(geometry_losses)
+	plt.xticks(range(1, epochs+1))
+	plt.xlabel("epochs")
+	plt.ylabel("geometry loss")
+	plt.show()
+	plt.savefig('plots/geometry_loss.png')
