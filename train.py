@@ -41,74 +41,74 @@ score_losses = []
 geometry_losses = []
 with torch.autograd.set_detect_anomaly(True):
 	for e in tqdm(range(epochs), desc="Epochs:"):
-	model = model.train()
-	epoch_loss = 0
-	epoch_score_loss = 0
-	epoch_geometry_loss = 0
+		model = model.train()
+		epoch_loss = 0
+		epoch_score_loss = 0
+		epoch_geometry_loss = 0
 
-	for i, train_egs in tqdm(enumerate(train_loader), total=n_mini_batches, desc="Training Mini Batches:"):
-		optimizer.zero_grad()
+		for i, train_egs in tqdm(enumerate(train_loader), total=n_mini_batches, desc="Training Mini Batches:"):
+			optimizer.zero_grad()
 
-		images, score_maps, geometry_maps = train_egs  
-		if cuda:
-			images = Variable(images.cuda())
-			score_maps = Variable(score_maps.cuda())
-			geometry_maps = Variable(geometry_maps.cuda())
-		#print("images", images.size())
-		#print("score_maps", score_maps.size(), "geometry_maps", geometry_maps.size())
+			images, score_maps, geometry_maps = train_egs  
+			if cuda:
+				images = Variable(images.cuda())
+				score_maps = Variable(score_maps.cuda())
+				geometry_maps = Variable(geometry_maps.cuda())
+			#print("images", images.size())
+			#print("score_maps", score_maps.size(), "geometry_maps", geometry_maps.size())
 
-		score_maps_pred, geometry_maps_pred = model.forward(images)
-		#print("score_maps_pred", score_maps_pred.size(), "geometry_maps_pred", geometry_maps_pred.size())
-		
-		mini_batch_loss = loss_function.compute_loss(score_maps.double(), 
-			score_maps_pred.double(),
-			geometry_maps.double(), 
-			geometry_maps_pred.double())
-		print("Score Loss:", loss_function.loss_of_score.item())
-		print("Geometry Loss:", loss_function.loss_of_geometry.item())
-		print("Loss:", mini_batch_loss.item())
-		epoch_loss += mini_batch_loss.item()
-		epoch_score_loss += loss_function.loss_of_score.item()
-		epoch_geometry_loss += loss_function.loss_of_geometry.item()
+			score_maps_pred, geometry_maps_pred = model.forward(images)
+			#print("score_maps_pred", score_maps_pred.size(), "geometry_maps_pred", geometry_maps_pred.size())
+			
+			mini_batch_loss = loss_function.compute_loss(score_maps.double(), 
+				score_maps_pred.double(),
+				geometry_maps.double(), 
+				geometry_maps_pred.double())
+			print("Score Loss:", loss_function.loss_of_score.item())
+			print("Geometry Loss:", loss_function.loss_of_geometry.item())
+			print("Loss:", mini_batch_loss.item())
+			epoch_loss += mini_batch_loss.item()
+			epoch_score_loss += loss_function.loss_of_score.item()
+			epoch_geometry_loss += loss_function.loss_of_geometry.item()
 
-		mini_batch_loss.backward()
-		optimizer.step()
-		scheduler.step()
+			mini_batch_loss.backward()
+			optimizer.step()
+			scheduler.step()
 
-		time.sleep(5)
+			time.sleep(5)
 
-	epoch_loss /= n_mini_batches
-	epoch_score_loss /= n_mini_batches
-	epoch_geometry_loss /= n_mini_batches
-	losses.append(epoch_loss)
-	score_losses.append(epoch_score_loss)
-	geometry_losses.append(epoch_geometry_loss)
+		epoch_loss /= n_mini_batches
+		epoch_score_loss /= n_mini_batches
+		epoch_geometry_loss /= n_mini_batches
+		losses.append(epoch_loss)
+		score_losses.append(epoch_score_loss)
+		geometry_losses.append(epoch_geometry_loss)
 
-	if (e + 1) % save_step == 0:
-		if not os.path.exists('./checkpoints'):
-			os.mkdir('./checkpoints')
-		torch.save(model.state_dict(), './checkpoints/model_{}.pth'.format(e + 1))
+		if (e + 1) % save_step == 0:
+			if not os.path.exists('./checkpoints'):
+				os.mkdir('./checkpoints')
+			torch.save(model.state_dict(), './checkpoints/model_{}.pth'.format(e + 1))
 
-	if not os.path.exists('./plots'):
-	os.mkdir('./plots')
+		if not os.path.exists('./plots'):
+		os.mkdir('./plots')
 
-	plt.plot(losses)
-	plt.xticks(range(1, epochs+1))
-	plt.xlabel("epochs")
-	plt.ylabel("loss")
-	plt.show()
-	plt.savefig('plots/loss.png')
+		plt.plot(losses)
+		plt.xticks(range(1, epochs+1))
+		plt.xlabel("epochs")
+		plt.ylabel("loss")
+		plt.show()
+		plt.savefig('plots/loss.png')
 
-	plt.plot(score_losses)
-	plt.xticks(range(1, epochs+1))
-	plt.xlabel("epochs")
-	plt.ylabel("score loss")
-	plt.show()
-	plt.savefig('plots/score_loss.png')
+		plt.plot(score_losses)
+		plt.xticks(range(1, epochs+1))
+		plt.xlabel("epochs")
+		plt.ylabel("score loss")
+		plt.show()
+		plt.savefig('plots/score_loss.png')
 
-	plt.plot(geometry_losses)
-	plt.xticks(range(1, epochs+1))
-	plt.xlabel("epochs")
-	plt.ylabel("geometry loss")
-	plt.show()
-	plt.savefig('plots/geometry_loss.png')
+		plt.plot(geometry_losses)
+		plt.xticks(range(1, epochs+1))
+		plt.xlabel("epochs")
+		plt.ylabel("geometry loss")
+		plt.show()
+		plt.savefig('plots/geometry_loss.png')
