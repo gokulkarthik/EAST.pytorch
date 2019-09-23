@@ -11,12 +11,6 @@ import numpy as np
 from tqdm import tqdm
 import time
 
-
-"""
-Reference: https://github.com/liushuchun/EAST.pytorch
-"""
-
-
 config = {k:v for k,v in vars(Config).items() if not k.startswith("__")}
 geometry = config['geometry']
 label_method = config['label_method']
@@ -58,7 +52,7 @@ def load_shapes_coords(annotation_path):
             x1, y1, x2, y2, x3, y3, x4, y4 = list(map(float, line[:8]))
             quad_cords = [[x1, y1], [x2, y2], [x3, y3], [x4, y4]]
             quads_coords.append(quad_cords)
-    quads_coords = np.array(quads_coords, dtype=np.float32)
+    quads_coords = np.array(quads_coords, dtype=np.float32) / 512.0
     
     if geometry == "QUAD":
         shapes_coords = quads_coords

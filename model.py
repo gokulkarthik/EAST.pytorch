@@ -7,10 +7,6 @@ import math
 
 config = {k:v for k,v in vars(Config).items() if not k.startswith("__")}
 
-"""
-Reference: https://github.com/liushuchun/EAST.pytorch
-"""
-
 class EAST(nn.Module):
 
 
@@ -74,7 +70,7 @@ class EAST(nn.Module):
 
         layer4 = nn.Sequential(nn.Conv2d(32, 32, 3, padding=1), nn.BatchNorm2d(32), nn.ReLU(inplace=True))
 
-        self.feature_convs = nn.ModuleList([layer1, layer2, layer3, layer4])
+        self.feature_convs = nn.ModuleList(35.236.210.110 [layer1, layer2, layer3, layer4])
 
         self.unpool = nn.Upsample(scale_factor=2, mode="bilinear", align_corners=True)
 
