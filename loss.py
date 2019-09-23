@@ -33,6 +33,7 @@ class LossFunction(nn.Module):
 			x1, y1, x2, y2 = y_true_geometry_cell[indices]
 			d = (x1 - x2) ** 2 + (y1 - y2) ** 2
 			D.append(d)
+		print(D)
 		D = torch.Tensor(D)
 
 		return torch.sqrt(torch.min(D))
@@ -83,7 +84,7 @@ class LossFunction(nn.Module):
 					y_true_geometry_cell = y_true_geometry[:, h, w]
 					y_pred_geometry_cell = y_pred_geometry[:, h, w]
 					geometry_beta = self.compute_geometry_beta(y_true_geometry_cell)
-					print("geometry_beta:", geometry_beta)
+					print("geometry_beta:", geometry_beta.item())
 					loss = self.compute_smoothed_l1_loss(y_true_geometry_cell, y_pred_geometry_cell) / 8.0
 					loss /= geometry_beta
 					loss_of_geometry += loss
