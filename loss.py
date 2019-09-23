@@ -101,6 +101,8 @@ class LossFunction(nn.Module):
 		y_true_geometry, y_pred_geometry: [m, 8, 128, 128]
 		"""
 		self.loss_of_score = self.compute_score_loss(Y_true_score, Y_pred_score)
+		print("Y_true_geometry.max():", torch.max(Y_true_geometry))
+		print("Y_pred_geometry.max():", torch.max(Y_pred_geometry))
 		self.loss_of_geometry = self.compute_geometry_loss(Y_true_geometry, Y_pred_geometry, lambda_geometry)
 		self.loss = self.loss_of_score + self.loss_of_geometry
 		return self.loss
