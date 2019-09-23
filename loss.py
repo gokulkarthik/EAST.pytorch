@@ -83,6 +83,7 @@ class LossFunction(nn.Module):
 					y_true_geometry_cell = y_true_geometry[:, h, w]
 					y_pred_geometry_cell = y_pred_geometry[:, h, w]
 					geometry_beta = self.compute_geometry_beta(y_true_geometry_cell)
+					print("geometry_beta:", geometry_beta)
 					loss = self.compute_smoothed_l1_loss(y_true_geometry_cell, y_pred_geometry_cell) / 8.0
 					loss /= geometry_beta
 					loss_of_geometry += loss
