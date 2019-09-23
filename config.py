@@ -19,3 +19,4 @@ class Config:
     epochs = 5
     learning_rate = 0.01
     mini_batch_size = 2
+    save_step = 2
