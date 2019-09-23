@@ -9,7 +9,7 @@ class Config:
     geometry = "QUAD" # ["RBOX", "QUAD"]
     label_method = "single" # ["single", "multiple"]
 
-    max_m_train = 10000
+    max_m_train = 100
     data_dir = "/home/{}/data-split/{}".format(user, lang)
     train_data_dir = os.path.join(data_dir, 'train')
     dev_data_dir = os.path.join(data_dir, 'dev')
