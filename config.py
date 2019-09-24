@@ -9,7 +9,7 @@ class Config:
     geometry = "QUAD" # ["RBOX", "QUAD"]
     label_method = "single" # ["single", "multiple"]
 
-    max_m_train = 100
+    max_m_train = 1000
     data_dir = "/home/{}/data-split/{}".format(user, lang)
     train_data_dir = os.path.join(data_dir, 'train')
     dev_data_dir = os.path.join(data_dir, 'dev')
@@ -17,7 +17,7 @@ class Config:
 
     cuda = True
     lambda_geometry = 1
-    epochs = 5
+    epochs = 50
     learning_rate = 0.01
-    mini_batch_size = 8
-    save_step = 2
+    mini_batch_size = 32
+    save_step = 5

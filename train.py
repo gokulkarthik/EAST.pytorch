@@ -41,7 +41,7 @@ losses = []
 score_losses = []
 geometry_losses = []
 with torch.autograd.set_detect_anomaly(True):
-	for e in tqdm(range(epochs), desc="Epochs:"):
+	for e in range(epochs):
 		model = model.train()
 		epoch_loss = 0
 		epoch_score_loss = 0
@@ -84,8 +84,9 @@ with torch.autograd.set_detect_anomaly(True):
 		epoch_geometry_loss /= n_mini_batches
 		toc = time.time()
 		elapsed_time = toc - tic
-		print("Epoch:{}  Loss:{:.6f}  ScoreLoss:{:.6f}  GeometryLoss:{:.6f}  Duration:{}".format(
+		print("Epoch:{}/{}  Loss:{:.6f}  ScoreLoss:{:.6f}  GeometryLoss:{:.6f}  Duration:{}".format(
 			e+1, 
+			epochs
 			epoch_loss, 
 			epoch_score_loss, 
 			epoch_geometry_loss,
@@ -102,23 +103,23 @@ with torch.autograd.set_detect_anomaly(True):
 	if not os.path.exists('./plots'):
 		os.mkdir('./plots')
 
-	plt.plot(losses)
+	plt.figure()
+	plt.plot(range(1, epochs+1), losses, marker="o", linestyle="--")
 	plt.xticks(range(1, epochs+1))
 	plt.xlabel("epochs")
 	plt.ylabel("loss")
-	plt.show()
 	plt.savefig('plots/loss.png')
 
-	plt.plot(score_losses)
+	plt.figure()
+	plt.plot(range(1, epochs+1), score_losses, marker="o", linestyle="--")
 	plt.xticks(range(1, epochs+1))
 	plt.xlabel("epochs")
 	plt.ylabel("score loss")
-	plt.show()
 	plt.savefig('plots/score_loss.png')
 
-	plt.plot(geometry_losses)
+	plt.figure()
+	plt.plot(range(1, epochs+1), geometry_losses, marker="o", linestyle="--")
 	plt.xticks(range(1, epochs+1))
 	plt.xlabel("epochs")
 	plt.ylabel("geometry loss")
-	plt.show()
 	plt.savefig('plots/geometry_loss.png')
