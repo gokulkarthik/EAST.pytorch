@@ -75,6 +75,7 @@ class LossFunction(nn.Module):
 		y_true_geometry, y_pred_geometry: [m, 8, 128, 128]; range:[0,1]
 		beta: N_Q*
 		"""
+		"""
 		m, n_c, n_H, n_W = Y_true_geometry.shape
 		loss_of_geometry = 0
 		for y_true_geometry, y_pred_geometry in zip(Y_true_geometry, Y_pred_geometry):
@@ -84,11 +85,12 @@ class LossFunction(nn.Module):
 					y_pred_geometry_cell = y_pred_geometry[:, h, w]
 					#geometry_beta = self.compute_geometry_beta(y_true_geometry_cell)
 					#print("geometry_beta:", geometry_beta.item())
-					loss = self.compute_smoothed_l1_loss(y_true_geometry_cell, y_pred_geometry_cell) / 8.0
+					loss = self.compute_smoothed_l1_loss(y_true_geometry_cell, y_pred_geometry_cell) 
 					#loss /= geometry_beta
 					loss_of_geometry += loss
-
-		loss_of_geometry /= float(m * n_H * n_W)
+		"""
+		loss_of_geometry = torch.sum(torch.abs(Y_true_geometry - Y_pred_geometry))
+		loss_of_geometry /= float(torch.numel(Y_true_geometry))
 		loss_of_geometry *= lambda_geometry
 
 		return loss_of_geometry

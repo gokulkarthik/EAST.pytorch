@@ -7,6 +7,7 @@ import os
 import cv2
 import csv
 import numpy as np
+import pandas as pd
 
 from tqdm import tqdm
 import time
@@ -45,6 +46,7 @@ def load_shapes_coords(annotation_path):
 
     quads_coords = []
     
+    """
     with open(annotation_path, 'r') as file:
         reader = csv.reader(file)
         for line in reader:
@@ -53,11 +55,17 @@ def load_shapes_coords(annotation_path):
             quad_cords = [[x1, y1], [x2, y2], [x3, y3], [x4, y4]]
             quads_coords.append(quad_cords)
     quads_coords = np.array(quads_coords, dtype=np.float32)
+    """
+    quads_coords = pd.read_csv(annotation_path, header=None)
+    quads_coords = quads_coords.iloc[:,:-1].values # [n_box, 8]
+    quads_coords = quads_coords.reshape(-1, 4, 2)
     
     if geometry == "QUAD":
         shapes_coords = quads_coords
     elif geometry == "RBOX":
-        shapes_coords =  quads_to_rboxes(coords) 
+        shapes_coords =  quads_to_rboxes(coords)
+    else:
+    	raise ValueError("Invalid Geometry")
     
     return shapes_coords
 

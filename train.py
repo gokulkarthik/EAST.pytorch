@@ -82,7 +82,8 @@ with torch.autograd.set_detect_anomaly(True):
 		epoch_score_loss /= n_mini_batches
 		epoch_geometry_loss /= n_mini_batches
 		toc = time.time()
-		print("Epoch:{}  Loss:{:.6f}  ScoreLoss:{.6f}  GeometryLoss:{.6f}  Duration:{}".format(e+1, 
+		print("Epoch:{}  Loss:{:.6f}  ScoreLoss:{:.6f}  GeometryLoss:{:.6f}  Duration:{}".format(
+			e+1, 
 			epoch_loss, 
 			epoch_score_loss, 
 			epoch_geometry_loss,
