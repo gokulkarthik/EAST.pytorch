@@ -86,7 +86,7 @@ with torch.autograd.set_detect_anomaly(True):
 		elapsed_time = toc - tic
 		print("Epoch:{}/{}  Loss:{:.6f}  ScoreLoss:{:.6f}  GeometryLoss:{:.6f}  Duration:{}".format(
 			e+1, 
-			epochs
+			epochs,
 			epoch_loss, 
 			epoch_score_loss, 
 			epoch_geometry_loss,
