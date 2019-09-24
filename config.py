@@ -17,7 +17,7 @@ class Config:
 
     cuda = True
     lambda_geometry = 1
-    epochs = 50
+    epochs = 10
     learning_rate = 0.01
     mini_batch_size = 4
     save_step = 5
