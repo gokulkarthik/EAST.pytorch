@@ -29,6 +29,7 @@ print("Number of examples:", len(trainset))
 print("Mini batch size:", mini_batch_size)
 n_mini_batches = len(trainset)//mini_batch_size + int(len(trainset)%mini_batch_size!=0)
 print("Number of mini batches:", n_mini_batches) 
+print("Number of epochs:", epochs)
 
 model = EAST(geometry=config["geometry"])
 if cuda:
