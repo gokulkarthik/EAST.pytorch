@@ -10,6 +10,7 @@ from dataset import ImageDataSet
 from loss import LossFunction
 from tqdm import tqdm
 import time
+import matplotlib.pyplot as plt
 
 config = {k:v for k,v in vars(Config).items() if not k.startswith("__")}
 train_data_dir = config["train_data_dir"]
@@ -82,12 +83,13 @@ with torch.autograd.set_detect_anomaly(True):
 		epoch_score_loss /= n_mini_batches
 		epoch_geometry_loss /= n_mini_batches
 		toc = time.time()
+		elapsed_time = toc - tic
 		print("Epoch:{}  Loss:{:.6f}  ScoreLoss:{:.6f}  GeometryLoss:{:.6f}  Duration:{}".format(
 			e+1, 
 			epoch_loss, 
 			epoch_score_loss, 
 			epoch_geometry_loss,
-			toc-tic))
+			time.strftime("%H:%M:%S", time.gmtime(elapsed_time))))
 		losses.append(epoch_loss)
 		score_losses.append(epoch_score_loss)
 		geometry_losses.append(epoch_geometry_loss)
@@ -97,26 +99,26 @@ with torch.autograd.set_detect_anomaly(True):
 				os.mkdir('./checkpoints')
 			torch.save(model.state_dict(), './checkpoints/model_{}.pth'.format(e + 1))
 
-		if not os.path.exists('./plots'):
-			os.mkdir('./plots')
+	if not os.path.exists('./plots'):
+		os.mkdir('./plots')
 
-		plt.plot(losses)
-		plt.xticks(range(1, epochs+1))
-		plt.xlabel("epochs")
-		plt.ylabel("loss")
-		plt.show()
-		plt.savefig('plots/loss.png')
+	plt.plot(losses)
+	plt.xticks(range(1, epochs+1))
+	plt.xlabel("epochs")
+	plt.ylabel("loss")
+	plt.show()
+	plt.savefig('plots/loss.png')
 
-		plt.plot(score_losses)
-		plt.xticks(range(1, epochs+1))
-		plt.xlabel("epochs")
-		plt.ylabel("score loss")
-		plt.show()
-		plt.savefig('plots/score_loss.png')
+	plt.plot(score_losses)
+	plt.xticks(range(1, epochs+1))
+	plt.xlabel("epochs")
+	plt.ylabel("score loss")
+	plt.show()
+	plt.savefig('plots/score_loss.png')
 
-		plt.plot(geometry_losses)
-		plt.xticks(range(1, epochs+1))
-		plt.xlabel("epochs")
-		plt.ylabel("geometry loss")
-		plt.show()
-		plt.savefig('plots/geometry_loss.png')
+	plt.plot(geometry_losses)
+	plt.xticks(range(1, epochs+1))
+	plt.xlabel("epochs")
+	plt.ylabel("geometry loss")
+	plt.show()
+	plt.savefig('plots/geometry_loss.png')

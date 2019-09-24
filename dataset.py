@@ -43,10 +43,9 @@ def load_shapes_coords(annotation_path):
     """
     > correct the order of the coords of a quad
     """
-
-    quads_coords = []
     
     """
+    quads_coords = []
     with open(annotation_path, 'r') as file:
         reader = csv.reader(file)
         for line in reader:
