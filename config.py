@@ -19,5 +19,5 @@ class Config:
     lambda_geometry = 1
     epochs = 50
     learning_rate = 0.01
-    mini_batch_size = 8
+    mini_batch_size = 4
     save_step = 5
