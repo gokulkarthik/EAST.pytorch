@@ -1,0 +1,1 @@
+{"geometry": "QUAD", "max_m_train": 10000, "lambda_geometry": 1, "epochs": 25, "smoothed_l1_loss_beta": 1, "learning_rate": 0.001, "lr_scheduler_step_size": 10000, "lr_scheduler_gamma": 0.94, "mini_batch_size": 24, "comments": "Geo Loss: L1 loss"}

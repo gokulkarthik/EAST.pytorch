@@ -13,9 +13,13 @@ from tqdm import tqdm
 import time
 
 config = {k:v for k,v in vars(Config).items() if not k.startswith("__")}
+
+image_size = config['image_size']
 geometry = config['geometry']
 label_method = config['label_method']
-image_size = config['image_size']
+
+max_m_train = config['max_m_train']
+
 n_H, n_W, n_C = image_size
 
 if geometry == "RBOX":
@@ -28,7 +32,7 @@ def list_images(images_dir):
  
     names = list(os.listdir(images_dir))
     np.random.shuffle(names)
-    image_names = names[:config["max_m_train"]]
+    image_names = names[:max_m_train]
  
     return image_names
 
@@ -151,6 +155,27 @@ class ImageDataSet(torch.utils.data.Dataset):
         score_map, geometry_map = load_score_and_geometry_map(annotation_path)
         
         return image, score_map, geometry_map
+
+    def __len__(self):
+        
+        return len(self.image_names)
+    
+    
+class ImageTestDataSet(torch.utils.data.Dataset):
+
+    def __init__(self, images_dir):
+
+        self.images_dir = images_dir
+        self.image_names = list_images(images_dir)
+
+    def __getitem__(self, index):
+
+        image_name = self.image_names[index]
+        image_path = os.path.join(self.images_dir, image_name)
+        # image -> [3, 512, 512]
+        image = load_image(image_path)             
+        
+        return image
 
     def __len__(self):
         
