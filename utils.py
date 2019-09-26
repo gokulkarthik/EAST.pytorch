@@ -69,6 +69,15 @@ def non_maximal_supression(score_maps_pred, geometry_maps_pred, score_threshold=
     
     return mini_batch_boxes_pred
 
+
+def send_message(slack_client, channel_id, message): 
+    response = slack_client.chat_postMessage(
+        channel=channel_id,
+        text=message,
+        username='Deep Updater',
+        icon_emoji=':robot_face:')
+    return response
+
 # test code
 """
 score_maps_pred = torch.randn([2, 1, 3, 3])

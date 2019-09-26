@@ -8,6 +8,10 @@ class Config:
     image_size = [512, 512, 3]
     geometry = "QUAD" # ["RBOX", "QUAD"]
     label_method = "single" # ["single", "multiple"]
+    
+    use_slack = True
+    slack_epoch_step = 1
+    slack_channel_id = "#updates" # "CNU04UXUN" 
 
     max_m_train = 10000
     data_dir = "/home/{}/data-split/{}".format(user, lang)
@@ -16,7 +20,7 @@ class Config:
     test_data_dir = os.path.join(data_dir, 'test')
 
     cuda = True
-    lambda_geometry = 0.1
+    lambda_geometry = 1
     epochs = 30
     smoothed_l1_loss_beta = 1.0
     learning_rate = 0.001
@@ -25,7 +29,7 @@ class Config:
     mini_batch_size = 24
     save_step = 5
     
-    experiment_name = "2"
+    experiment_name = "3"
     meta_data_dir = "./experiment_meta_data" # 1
     model_dir = "./experiment_model" # epochs/save_step
     loss_dir = "./experiment_loss" # 1
@@ -44,7 +48,7 @@ class Config:
                  "lr_scheduler_step_size": lr_scheduler_step_size,
                  "lr_scheduler_gamma": lr_scheduler_gamma,
                  "mini_batch_size":mini_batch_size,
-                 "comments": "Geo Loss: Smoothed L1 loss with text mask and geo_beta=0.1"
+                 "comments": "Geo Loss: Smoothed L1 loss with text mask and geo_beta=1"
                 }
     
     test_model_file = "./experiment_model/experiment_{}_epoch_{}.pth".format("1", "20") 
