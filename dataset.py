@@ -1,4 +1,3 @@
-from config import Config
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -132,16 +131,12 @@ def load_score_and_geometry_map_formatted(annotation_path):
     score_map = np.zeros([1, 128, 128])
     geometry_map = np.zeros([8, 128, 128])
     
-    if representation == "QUAD_single":
+    if representation == "QUAD_single" or representation == "QUAD_multiple":
         
         geometry_map = pd.read_csv(annotation_path, header=None).values # [(128*128), 8]
         geometry_map = geometry_map.reshape(128, 128, 8)
         geometry_map = np.moveaxis(geometry_map, 2, 0)
         score_map = (geometry_map.sum(axis=0) > 0).astype(np.int).reshape(1, 128, 128)
-    
-    elif representation == "QUAD_multiple":
-        
-        raise NotImplementedError()
         
     elif representation == "RBOX_single":
         

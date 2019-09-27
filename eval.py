@@ -11,7 +11,7 @@ from tqdm import tqdm
 import time
 from model import EAST
 from loss import LossFunction
-from utils import non_maximal_supression, draw_bbs
+from utils import non_maximal_supression, draw_bbs, reverse_shift
 import math
 import cv2
 
@@ -21,6 +21,7 @@ do_eval_devset = True
 config = {k:v for k,v in vars(Config).items() if not k.startswith("__")}
 
 geometry = config['geometry']
+label_method = config['label_method']
 
 train_data_dir = config['train_data_dir']
 dev_data_dir = config['dev_data_dir']
@@ -34,6 +35,8 @@ eval_mini_batch_size = config['eval_mini_batch_size']
 score_threshold = config['score_threshold']
 iou_threshold = config['iou_threshold']
 max_boxes = config['max_boxes']
+
+representation = geometry + "_" + label_method
 
 model = EAST(geometry=geometry)
 loss_function = LossFunction()
@@ -87,6 +90,9 @@ def eval_dataset(data_dir):
         
         score_maps_pred = score_maps_pred.cpu().numpy()
         geometry_maps_pred = geometry_maps_pred.cpu().numpy()
+
+        if representation == "QUAD_multiple":
+        	geometry_maps_pred = reverse_shift(geometry_maps_pred) # [8, 128, 128]
         
         mini_batch_boxes_pred = non_maximal_supression(score_maps_pred, 
                                                        geometry_maps_pred, 

@@ -5,6 +5,7 @@ import torch
 import torch.nn as nn
 import numpy as np
 import pandas as pd
+from sympy import Polygon, Point
 
 config = {k:v for k,v in vars(Config).items() if not k.startswith("__")}
 
@@ -45,9 +46,10 @@ def load_shapes_coords(annotation_path):
 
 representation = geometry + "_" + label_method
 
+print("Formatting data in", representation, "...")
 if representation == "QUAD_single":
     
-    print("Formatting data in", representation, "...")
+    
     for data_dir in [train_data_dir, dev_data_dir]:
         
         print("Processing", data_dir, "...")
@@ -85,6 +87,40 @@ if representation == "QUAD_single":
         
 elif representation = "QUAD_multiple":
     
+    for data_dir in [train_data_dir, dev_data_dir]:
+        
+        print("Processing", data_dir, "...")
+        annotations_dir = os.path.join(data_dir, "annotations")
+        annotations_representation_dir = os.path.join(data_dir, "annotations_" + representation)
+        
+        if not os.path.exists(annotations_representation_dir):
+            os.mkdir(annotations_representation_dir)
+            
+        for annotation_file in tqdm(os.listdir(annotations_dir)):
+            
+            #geometry_map_raw = np.zeros([n_H, n_W, 8])
+            geometry_map = np.zeros([128,128, 8])
+            
+            annotation_path = os.path.join(annotations_dir, annotation_file)
+            annotation_representation_path = os.path.join(annotations_representation_dir, annotation_file)
+            shapes_coords = load_shapes_coords(annotation_path) # [-1, 4, 2]
+
+            for shape_coords in shapes_coords: # shape_coords: [4, 2]
+            	polygon = Polygon(*[(x, y) for x, y in shape_coords])
+            	xmin, ymin, xmax, ymax = polygon.bounds
+            	xmin += 8
+            	ymin += 8
+            	xmax -= 8
+            	ymax -= 8
+            	for x in range(xmin, xmax+1):
+            		for y in range(ymin, ymax+1):
+            			if polygon.encloses_point(Point(x, y)):
+            				geometry_map[x//4, y//4] = shape_coords - np.array([x, y])
+ 
+            
+            geometry_map = geometry_map.reshape(-1, 8)  
+
+            np.savetxt(annotation_representation_path, geometry_map, fmt="%d", delimiter=",")
 
 else:
     

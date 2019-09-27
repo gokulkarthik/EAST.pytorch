@@ -103,6 +103,22 @@ def draw_bbs(image, bbs, color=(0, 0, 255), thickness=1): # BGR
         
     return image
 
+
+def reverse_shift(geometry_maps_pred): # [8, 128, 128]
+
+	geometry_maps_pred = np.moveaxis(geometry_maps_pred, 0, 2) # [128, 128, 8]
+	geometry_maps_pred = geometry_maps_pred.reshape(128, 128, 4, 2)
+
+	for i in range(128):
+		for j in range(128):
+			geometry_maps_pred[i, j] = geometry_maps_pred[i, j] + np.array([4*i, 4*j])
+
+	geometry_maps_pred = geometry_maps_pred.reshape(128, 128, 8)
+	geometry_maps_pred = np.moveaxis(geometry_maps_pred, 2, 0) # [8, 128, 128]
+
+	return geometry_maps_pred
+
+
 # test code
 """
 score_maps_pred = torch.randn([2, 1, 3, 3])
