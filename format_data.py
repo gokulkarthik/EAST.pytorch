@@ -115,7 +115,7 @@ elif representation == "QUAD_multiple":
             	for x in range(xmin, xmax+1):
             		for y in range(ymin, ymax+1):
             			if polygon.encloses_point(Point(x, y)):
-            				geometry_map[x//4, y//4] = shape_coords - np.array([x, y])
+            				geometry_map[x//4, y//4] = (shape_coords - np.array([x, y])).flatten()
  
             
             geometry_map = geometry_map.reshape(-1, 8)  
