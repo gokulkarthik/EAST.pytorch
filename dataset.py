@@ -17,8 +17,11 @@ config = {k:v for k,v in vars(Config).items() if not k.startswith("__")}
 image_size = config['image_size']
 geometry = config['geometry']
 label_method = config['label_method']
+use_formatted_data = config['use_formatted_data']
 
 max_m_train = config['max_m_train']
+
+representation = geometry + "_"+ label_method
 
 n_H, n_W, n_C = image_size
 
@@ -47,18 +50,7 @@ def load_shapes_coords(annotation_path):
     """
     > correct the order of the coords of a quad
     """
-    
-    """
-    quads_coords = []
-    with open(annotation_path, 'r') as file:
-        reader = csv.reader(file)
-        for line in reader:
-            text = line[-1]
-            x1, y1, x2, y2, x3, y3, x4, y4 = list(map(float, line[:8]))
-            quad_cords = [[x1, y1], [x2, y2], [x3, y3], [x4, y4]]
-            quads_coords.append(quad_cords)
-    quads_coords = np.array(quads_coords, dtype=np.float32)
-    """
+
     quads_coords = pd.read_csv(annotation_path, header=None)
     quads_coords = quads_coords.iloc[:,:-1].values # [n_box, 8]
     quads_coords = quads_coords.reshape(-1, 4, 2)
@@ -68,7 +60,7 @@ def load_shapes_coords(annotation_path):
     elif geometry == "RBOX":
         shapes_coords =  quads_to_rboxes(coords)
     else:
-    	raise ValueError("Invalid Geometry")
+        raise ValueError("Invalid Geometry")
     
     return shapes_coords
 
@@ -82,58 +74,92 @@ def load_image(image_path):
     return image
 
 
-def load_score_and_geometry_map(annotation_path):
+def load_score_and_geometry_map_raw(annotation_path):
 
     shapes_coords = load_shapes_coords(annotation_path)
-    score_map = np.zeros([128, 128, 1])
-    geometry_map = np.zeros([128, 128, 8])
+    score_map = np.zeros([1, 128, 128])
+    geometry_map = np.zeros([8, 128, 128])
     score_map_raw = np.zeros([n_H, n_W, 1])
     geometry_map_raw = np.zeros([n_H, n_W, 8])
     
-    if label_method == "single":
-        if geometry == "QUAD":
+    if representation == "QUAD_single":
             
-            shapes_centre = np.mean(shapes_coords, axis=1).astype(np.int32)
-            #print("shapes_coords", shapes_coords.shape, "\n", shapes_coords)
-            #print("shapes_centre", shapes_centre.shape, "\n", shapes_centre)
-            for shape_coords, shape_centre in zip(shapes_coords, shapes_centre): # shape_coords -> [4, 2], shape_centre -> [2]
-                c_h, c_w = shape_centre
-                score_map_raw[c_h, c_w, 0] = 1
-                geometry_map_raw[c_h, c_w] = shape_coords.flatten() # [8]
-           
-            score_map_raw = np.moveaxis(score_map_raw, 2, 0) # channel_last to channel_first
-            geometry_map_raw = np.moveaxis(geometry_map_raw, 2, 0) # channel_last to channel_first
-            
-            max_pool_2d = nn.MaxPool2d((4,4), stride=4)
-            score_map_raw = torch.from_numpy(score_map_raw)
-            score_map = max_pool_2d(score_map_raw)
-            geometry_map_raw = torch.from_numpy(geometry_map_raw)
-            geometry_map = max_pool_2d(geometry_map_raw)
-                                       
-            #print("score_map", score_map.shape, "\n", score_map.sum())
-            #print("geometry_map", geometry_map.shape, "\n", (geometry_map.sum(axis=0)>0).sum())
-            #time.sleep(10)
-                                       
-        elif geometry == "RBOX":
-            raise NotImplementedError()
-        else:
-            raise ValueError("Invalid geometry: " + geometry)
+        shapes_centre = np.mean(shapes_coords, axis=1).astype(np.int32)
+        #print("shapes_coords", shapes_coords.shape, "\n", shapes_coords)
+        #print("shapes_centre", shapes_centre.shape, "\n", shapes_centre)
+        for shape_coords, shape_centre in zip(shapes_coords, shapes_centre): # shape_coords -> [4, 2], shape_centre -> [2]
+            c_h, c_w = shape_centre
+            score_map_raw[c_h, c_w, 0] = 1
+            geometry_map_raw[c_h, c_w] = shape_coords.flatten() # [8]
 
-    elif label_method == "multiple":
-        if geometry == "QUAD":
-            raise NotImplementedError()
-        elif geometry == "RBOX":
-            raise NotImplementedError()            
-        else:
-            raise ValueError("Invalid geometry: " + geometry)
+        score_map_raw = np.moveaxis(score_map_raw, 2, 0) # channel_last to channel_first
+        geometry_map_raw = np.moveaxis(geometry_map_raw, 2, 0) # channel_last to channel_first
+
+        max_pool_2d = nn.MaxPool2d((4,4), stride=4)
+        score_map_raw = torch.from_numpy(score_map_raw)
+        score_map = max_pool_2d(score_map_raw)
+        geometry_map_raw = torch.from_numpy(geometry_map_raw)
+        geometry_map = max_pool_2d(geometry_map_raw)
+
+        #print("score_map", score_map.shape, "\n", score_map.sum())
+        #print("geometry_map", geometry_map.shape, "\n", (geometry_map.sum(axis=0)>0).sum())
+        #time.sleep(10)
+                                       
+    elif representation == "QUAD_multiple":
+        
+        raise NotImplementedError()
+        
+    elif representation == "RBOX_single":
+        
+        raise NotImplementedError()
+        
+    elif representation == "RBOX_multiple":
+        
+        raise NotImplementedError()
             
     else:
-        raise ValueError("Invalid label method: " + label_method)
+        
+        raise ValueError("Invalid representation: " + representation)
 
     assert score_map.shape == (1, 128, 128)
     assert geometry_map.shape == (8, 128, 128)
     
     return score_map, geometry_map
+
+
+def load_score_and_geometry_map_formatted(annotation_path):
+    
+    score_map = np.zeros([1, 128, 128])
+    geometry_map = np.zeros([8, 128, 128])
+    
+    if representation == "QUAD_single":
+        
+        geometry_map = pd.read_csv(annotation_path, header=None).values # [(128*128), 8]
+        geometry_map = geometry_map.reshape(128, 128, 8)
+        geometry_map = np.moveaxis(geometry_map, 2, 0)
+        score_map = (geometry_map.sum(axis=0) > 0).astype(np.int).reshape(1, 128, 128)
+    
+    elif representation == "QUAD_multiple":
+        
+        raise NotImplementedError()
+        
+    elif representation == "RBOX_single":
+        
+        raise NotImplementedError()
+        
+    elif representation == "RBOX_multiple":
+        
+        raise NotImplementedError()
+            
+    else:
+        
+        raise ValueError("Invalid representation: " + representation)
+        
+    assert score_map.shape == (1, 128, 128)
+    assert geometry_map.shape == (8, 128, 128)
+    
+    return score_map, geometry_map
+    
 
 class ImageDataSet(torch.utils.data.Dataset):
 
@@ -146,15 +172,18 @@ class ImageDataSet(torch.utils.data.Dataset):
     def __getitem__(self, index):
 
         image_name = self.image_names[index]
-        annotation_name = image_name.split(".")[0] + ".csv"
         image_path = os.path.join(self.images_dir, image_name)
-        annotation_path = os.path.join(self.annotations_dir, annotation_name)
-        # image -> [3, 512, 512]
-        image = load_image(image_path)             
-        # score_map -> [1, 128, 128]; geometry_map -> [8, 128, 128]
-        score_map, geometry_map = load_score_and_geometry_map(annotation_path)
+        image = load_image(image_path) # image -> [3, 512, 512]
         
-        return image, score_map, geometry_map
+        annotation_name = image_name.split(".")[0] + ".csv"
+        annotation_path = os.path.join(self.annotations_dir, annotation_name)
+        
+        if use_formatted_data:
+            score_map, geometry_map = load_score_and_geometry_map_formatted(annotation_path) # score_map -> [1, 128, 128]; geometry_map -> [8, 128, 128]
+        else:
+            score_map, geometry_map = load_score_and_geometry_map_raw(annotation_path) # score_map -> [1, 128, 128]; geometry_map -> [8, 128, 128]
+        
+        return image_name, image, score_map, geometry_map
 
     def __len__(self):
         
@@ -175,7 +204,7 @@ class ImageTestDataSet(torch.utils.data.Dataset):
         # image -> [3, 512, 512]
         image = load_image(image_path)             
         
-        return image
+        return image_name, image
 
     def __len__(self):
         

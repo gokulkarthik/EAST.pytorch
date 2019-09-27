@@ -11,8 +11,9 @@ from tqdm import tqdm
 import time
 from model import EAST
 from loss import LossFunction
-from utils import non_maximal_supression
+from utils import non_maximal_supression, draw_bbs
 import math
+import cv2
 
 do_eval_trainset = False
 do_eval_devset = True
@@ -46,6 +47,13 @@ def eval_dataset(data_dir):
     
     data_images_dir = os.path.join(data_dir, "images")
     data_annotations_dir = os.path.join(data_dir, "annotations")
+    data_images_pred_dir = os.path.join(data_dir, "images_pred")
+    data_annotations_pred_dir = os.path.join(data_dir, "annotations_pred")
+    
+    if not os.path.exists(data_images_pred_dir):
+        os.mkdir(data_images_pred_dir)
+    if not os.path.exists(data_annotations_pred_dir):
+        os.mkdir(data_annotations_pred_dir)
     
     dataset = ImageDataSet(data_images_dir, data_annotations_dir)
     data_loader = torch.utils.data.DataLoader(dataset, batch_size=eval_mini_batch_size, shuffle=True)
@@ -55,7 +63,7 @@ def eval_dataset(data_dir):
     n_mini_batches = math.ceil(len(dataset)/eval_mini_batch_size)
     for i, data_egs in tqdm(enumerate(data_loader, start=1), total=n_mini_batches, desc="Evaluating Mini Batches:"):
         
-        images, score_maps, geometry_maps = data_egs
+        image_names, images, score_maps, geometry_maps = data_egs
         if cuda:
             images = images.cuda()
             score_maps = score_maps.cuda()
@@ -77,12 +85,32 @@ def eval_dataset(data_dir):
         geometry_loss += mini_batch_loss_of_geometry_item
         loss += mini_batch_loss_item
         
+        score_maps_pred = score_maps_pred.cpu().numpy()
+        geometry_maps_pred = geometry_maps_pred.cpu().numpy()
+        
         mini_batch_boxes_pred = non_maximal_supression(score_maps_pred, 
                                                        geometry_maps_pred, 
                                                        score_threshold=score_threshold, 
                                                        iou_threshold=iou_threshold, 
                                                        max_boxes=max_boxes)
         boxes_pred.extend(mini_batch_boxes_pred)
+        
+        for image_name, eg_boxes_pred in zip(image_names, mini_batch_boxes_pred):
+
+            annotation_name = image_name.split(".")[0] + ".csv"
+            image_path = os.path.join(data_images_dir, image_name)
+            annotation_path = os.path.join(data_annotations_dir, annotation_name)
+            image_pred_path = os.path.join(data_images_pred_dir, image_name)
+            annotation_pred_path = os.path.join(data_annotations_pred_dir, annotation_name)
+            
+            image = cv2.imread(image_path)
+            geometry_map = pd.read_csv(annotation_path, header=None).iloc[:,:-1].values.tolist()
+            
+            image = draw_bbs(image, geometry_map, color=(255, 0, 0)) #BGR
+            image = draw_bbs(image, eg_boxes_pred, color=(0, 0, 255)) #BGR
+            
+            cv2.imwrite(image_pred_path, image)             
+            eg_boxes_pred = pd.DataFrame(eg_boxes_pred).to_csv(annotation_pred_path, header=False, index=False)
         
     score_loss /= n_mini_batches
     geometry_loss /= n_mini_batches

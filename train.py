@@ -20,6 +20,8 @@ from utils import send_message, send_picture
 config = {k:v for k,v in vars(Config).items() if not k.startswith("__")}
 
 geometry = config["geometry"]
+label_method = config['label_method']
+use_formatted_data = config['use_formatted_data']
 
 use_slack = config["use_slack"]
 slack_epoch_step = config["slack_epoch_step"]
@@ -48,6 +50,8 @@ loss_file = config["loss_file"]
 plot_file = config["plot_file"]
 meta_data = config["meta_data"]
 
+representation = geometry + "_" + label_method
+
 if use_slack and os.environ['SLACK_TOKEN']:
     slack_client = WebClient(os.environ.get('SLACK_TOKEN'))
 
@@ -69,6 +73,8 @@ if use_slack:
     
 train_images_dir = os.path.join(train_data_dir, "images")
 train_annotations_dir = os.path.join(train_data_dir, "annotations")
+if use_formatted_data:
+    train_annotations_dir = train_annotations_dir + "_" + representation
 
 trainset = ImageDataSet(train_images_dir, train_annotations_dir)
 train_loader = torch.utils.data.DataLoader(trainset, batch_size=mini_batch_size, shuffle=True)
@@ -102,7 +108,7 @@ with torch.autograd.set_detect_anomaly(True):
         for i, train_egs in tqdm(enumerate(train_loader, start=1), total=n_mini_batches, desc="Training Mini Batches:"):
             optimizer.zero_grad()
 
-            images, score_maps, geometry_maps = train_egs  
+            image_names, images, score_maps, geometry_maps = train_egs  
             if cuda:
                 images = Variable(images.cuda())
                 score_maps = Variable(score_maps.cuda())

@@ -7,13 +7,14 @@ class Config:
 
     image_size = [512, 512, 3]
     geometry = "QUAD" # ["RBOX", "QUAD"]
-    label_method = "single" # ["single", "multiple"]
+    label_method = "multiple" # ["single", "multiple"]
+    use_formatted_data = True
     
     use_slack = True
     slack_epoch_step = 1
     slack_channel = "#updates" # "CNU04UXUN" 
 
-    max_m_train = 12000
+    max_m_train = 120
     data_dir = "/home/{}/data-split/{}".format(user, lang)
     train_data_dir = os.path.join(data_dir, 'train')
     dev_data_dir = os.path.join(data_dir, 'dev')
@@ -28,9 +29,9 @@ class Config:
     lr_scheduler_step_size = 2000 # for every 4 epochs
     lr_scheduler_gamma = .94
     mini_batch_size = 24
-    save_step = 5
+    save_step = 50
     
-    experiment_name = "4"
+    experiment_name = "dummy"
     meta_data_dir = "./experiment_meta_data" # 1
     model_dir = "./experiment_model" # epochs/save_step
     loss_dir = "./experiment_loss" # 1
@@ -57,6 +58,6 @@ class Config:
     eval_mini_batch_size = 16
     test_mini_batch_size = 16
     
-    score_threshold = 0.4
-    iou_threshold = 0.5
-    max_boxes = 10
+    score_threshold = 0
+    iou_threshold = 0.1
+    max_boxes = 5

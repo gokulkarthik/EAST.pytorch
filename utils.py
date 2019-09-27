@@ -1,6 +1,9 @@
 from config import Config
 import torch
 import numpy as np
+import cv2
+from sympy import Polygon
+from sympy.geometry import intersection
 
 config = {k:v for k,v in vars(Config).items() if not k.startswith("__")}
 
@@ -9,17 +12,15 @@ iou_threshold = config['iou_threshold']
 max_boxes = config['max_boxes']
 
 def compute_iou(gmap_a, gmap_b):
-    """
-    warning: This is just an approximation to IoU
-    """
-    x1_a, y1_a, x3_a, y3_a = gmap_a[0], gmap_a[1], gmap_a[4], gmap_a[5]
-    x1_b, y1_b, x3_b, y3_b = gmap_b[0], gmap_b[1], gmap_b[4], gmap_b[5]
-    x1_int, y1_int, x3_int, y3_int = max(x1_a, x1_b), max(y1_a, y1_b), min(x3_a, x3_b), min(y3_a, y3_b)
     
-    area_a = np.abs((x3_a-x1_a) * (y3_a-y1_a))
-    area_b = np.abs((x3_b-x1_b) * (y3_b-y1_b))
-    area_int = np.abs((x3_int-x1_int) * (y3_int-y1_int))
-    area_un = np.abs(area_a + area_b - area_int) + 10e-6
+    gmap_a = [(x, y) for x, y in gmap_a.reshape(-1, 2)]
+    gmap_b = [(x, y) for x, y in gmap_b.reshape(-1, 2)]
+     
+    poly_a = Polygon(*gmap_a)
+    ploy_b = Polygon(*gmap_b)
+    
+    area_int = intersection(poly_a, poly_b)
+    area_un = poly_a.area + ploy_b.area + area_int + 10e-6
     iou = area_int/area_un
     
     return iou
@@ -29,8 +30,6 @@ def non_maximal_supression(score_maps_pred, geometry_maps_pred, score_threshold=
     score_maps_pred: [m, 1, 128, 128]
     geometry_maps_pred: [m, 8, 128, 128]
     """
-    score_maps_pred = score_maps_pred.cpu().numpy()
-    geometry_maps_pred = geometry_maps_pred.cpu().numpy()
     mini_batch_boxes_pred = []
     for score_map_pred, geometry_map_pred in zip(score_maps_pred, geometry_maps_pred): # [1, 128, 128], [8, 128, 128]
         
@@ -65,20 +64,24 @@ def non_maximal_supression(score_maps_pred, geometry_maps_pred, score_threshold=
                     geometry_map_pred_filtered.append(gmap1)
 
             geometry_map_pred_filtered = geometry_map_pred_filtered[:max_boxes]
-            mini_batch_boxes_pred.append(geometry_map_pred_filtered.astype(np.int).tolist())
+            mini_batch_boxes_pred.append(np.array(geometry_map_pred_filtered).astype(np.int).tolist())
     
     return mini_batch_boxes_pred
 
 
 def send_message(slack_client, channel, message): 
+    
     response = slack_client.chat_postMessage(
         channel=channel,
         text=message,
         username='Deep Updater',
         icon_emoji=':robot_face:')
+    
     return response
 
+
 def send_picture(slack_client, channel, title, picture, message=""): 
+    
     response = slack_client.files_upload(
         channels=channel,
         title=title,
@@ -86,7 +89,19 @@ def send_picture(slack_client, channel, title, picture, message=""):
         message=message,
         username='Deep Updater',
         icon_emoji=':robot_face:')
+    
     return response
+
+
+def draw_bbs(image, bbs, color=(0, 0, 255), thickness=1): # BGR
+    
+    for bb in bbs:
+        image = cv2.line(image, (bb[0],bb[1]), (bb[2],bb[3]), color, thickness=thickness)
+        image = cv2.line(image, (bb[2],bb[3]), (bb[4],bb[5]), color, thickness=thickness)
+        image = cv2.line(image, (bb[4],bb[5]), (bb[6],bb[7]), color, thickness=thickness)
+        image = cv2.line(image, (bb[6],bb[7]), (bb[0],bb[1]), color, thickness=thickness)
+        
+    return image
 
 # test code
 """
