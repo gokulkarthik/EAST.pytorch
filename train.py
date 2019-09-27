@@ -15,7 +15,7 @@ import csv
 import json
 import math
 from slack import WebClient
-from utils import send_message
+from utils import send_message, send_picture
 
 config = {k:v for k,v in vars(Config).items() if not k.startswith("__")}
 
@@ -23,7 +23,7 @@ geometry = config["geometry"]
 
 use_slack = config["use_slack"]
 slack_epoch_step = config["slack_epoch_step"]
-slack_channel_id = config["slack_channel_id"]
+slack_channel = config["slack_channel"]
 
 train_data_dir = config["train_data_dir"]
 
@@ -37,6 +37,7 @@ lr_scheduler_gamma = config['lr_scheduler_gamma']
 mini_batch_size = config["mini_batch_size"]
 save_step = config["save_step"]
 
+experiment_name = config["experiment_name"]
 meta_data_dir = config["meta_data_dir"]
 model_dir = config["model_dir"]
 loss_dir = config["loss_dir"]
@@ -60,6 +61,12 @@ with open(loss_file, 'w') as file:
     writer = csv.writer(file)
     writer.writerow(['epoch_number', 'mini_batch_number', 'score_loss', 'geometry_loss', 'loss'])
     
+if use_slack:
+    message = "Experiment {} started!".format(experiment_name)
+    send_message(slack_client, slack_channel, message)
+    message = str(meta_data)
+    send_message(slack_client, slack_channel, message)
+    
 train_images_dir = os.path.join(train_data_dir, "images")
 train_annotations_dir = os.path.join(train_data_dir, "annotations")
 
@@ -71,6 +78,7 @@ print("Number of examples:", len(trainset))
 print("Mini batch size:", mini_batch_size)
 print("Number of epochs:", epochs)
 print("Number of mini batches:", n_mini_batches) 
+
 
 model = EAST(geometry=geometry)
 model = model.train()
@@ -137,12 +145,12 @@ with torch.autograd.set_detect_anomaly(True):
         geometry_losses.append(epoch_geometry_loss)
         toc = time.time()
         elapsed_time = toc - tic
-        message = "Epoch:{}/{}  Loss:{:.6f}  ScoreLoss:{:.6f}  GeometryLoss:{:.6f}  Duration:{}".format(
+        message = "Epoch:{}/{}  ScoreLoss:{:.6f}  GeometryLoss:{:.6f}  Loss:{:.6f}  Duration:{}".format(
             e, 
             epochs,
-            epoch_loss, 
             epoch_score_loss, 
             epoch_geometry_loss,
+            epoch_loss, 
             time.strftime("%H:%M:%S", time.gmtime(elapsed_time)))
         print(message)
 
@@ -154,25 +162,36 @@ with torch.autograd.set_detect_anomaly(True):
                 os.remove(file_to_delete)
                 
         if use_slack and e % slack_epoch_step == 0:
-            send_message(slack_client, slack_channel_id, message)
-
-    plt.figure()
-    plt.plot(range(1, epochs+1), losses, marker="o", linestyle="--")
-    plt.xticks(range(1, epochs+1))
-    plt.xlabel("epochs")
-    plt.ylabel("loss")
-    plt.savefig(plot_file.format('loss'))
-
+            send_message(slack_client, slack_channel, message)
+    
+    loss_type = "score_loss"
     plt.figure()
     plt.plot(range(1, epochs+1), score_losses, marker="o", linestyle="--")
     plt.xticks(range(1, epochs+1))
     plt.xlabel("epochs")
-    plt.ylabel("score loss")
-    plt.savefig(plot_file.format("score_loss"))
+    plt.ylabel(loss_type)
+    plt.savefig(plot_file.format(loss_type))
+    if use_slack:
+        send_picture(slack_client, slack_channel, loss_type, plot_file.format(loss_type))
 
+    loss_type = "geometry_loss"
     plt.figure()
     plt.plot(range(1, epochs+1), geometry_losses, marker="o", linestyle="--")
     plt.xticks(range(1, epochs+1))
     plt.xlabel("epochs")
-    plt.ylabel("geometry loss")
-    plt.savefig(plot_file.format("geometry_loss"))
+    plt.ylabel(loss_type)
+    plt.savefig(plot_file.format(loss_type))
+    if use_slack:
+        send_picture(slack_client, slack_channel, loss_type, plot_file.format(loss_type))
+        
+    loss_type = "loss"
+    plt.figure()
+    plt.plot(range(1, epochs+1), losses, marker="o", linestyle="--")
+    plt.xticks(range(1, epochs+1))
+    plt.xlabel("epochs")
+    plt.ylabel(loss_type)
+    plt.savefig(plot_file.format(loss_type))
+    if use_slack:
+        send_picture(slack_client, slack_channel, loss_type, plot_file.format(loss_type))
+        send_message(slack_client, slack_channel, message=":tada: "*5)
+        

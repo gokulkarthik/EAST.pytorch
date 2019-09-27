@@ -1,0 +1,104 @@
+from config import Config
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+import os 
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from dataset import ImageDataSet
+from tqdm import tqdm
+import time
+from model import EAST
+from loss import LossFunction
+from utils import non_maximal_supression
+import math
+
+do_eval_trainset = False
+do_eval_devset = True
+
+config = {k:v for k,v in vars(Config).items() if not k.startswith("__")}
+
+geometry = config['geometry']
+
+train_data_dir = config['train_data_dir']
+dev_data_dir = config['dev_data_dir']
+
+cuda = config['cuda']
+smoothed_l1_loss_beta = config["smoothed_l1_loss_beta"]
+
+trained_model_file = config['trained_model_file']
+eval_mini_batch_size = config['eval_mini_batch_size']
+
+score_threshold = config['score_threshold']
+iou_threshold = config['iou_threshold']
+max_boxes = config['max_boxes']
+
+model = EAST(geometry=geometry)
+loss_function = LossFunction()
+if cuda:
+    model.cuda()
+    loss_function.cuda()
+model.load_state_dict(torch.load(trained_model_file))
+model.eval()
+
+def eval_dataset(data_dir):
+    
+    data_images_dir = os.path.join(data_dir, "images")
+    data_annotations_dir = os.path.join(data_dir, "annotations")
+    
+    dataset = ImageDataSet(data_images_dir, data_annotations_dir)
+    data_loader = torch.utils.data.DataLoader(dataset, batch_size=eval_mini_batch_size, shuffle=True)
+
+    score_loss, geometry_loss, loss = 0, 0, 0
+    boxes_pred = []
+    n_mini_batches = math.ceil(len(dataset)/eval_mini_batch_size)
+    for i, data_egs in tqdm(enumerate(data_loader, start=1), total=n_mini_batches, desc="Evaluating Mini Batches:"):
+        
+        images, score_maps, geometry_maps = data_egs
+        if cuda:
+            images = images.cuda()
+            score_maps = score_maps.cuda()
+            geometry_maps = geometry_maps.cuda()
+            
+        score_maps_pred, geometry_maps_pred = model.forward(images)
+  
+        mini_batch_loss = loss_function.compute_loss(score_maps.double(), 
+            score_maps_pred.double(),
+            geometry_maps.double(), 
+            geometry_maps_pred.double(),
+            smoothed_l1_loss_beta = smoothed_l1_loss_beta)
+
+        mini_batch_loss_of_score_item = loss_function.loss_of_score.item()
+        mini_batch_loss_of_geometry_item = loss_function.loss_of_geometry.item()
+        mini_batch_loss_item = mini_batch_loss.item()
+              
+        score_loss += mini_batch_loss_of_score_item
+        geometry_loss += mini_batch_loss_of_geometry_item
+        loss += mini_batch_loss_item
+        
+        mini_batch_boxes_pred = non_maximal_supression(score_maps_pred, 
+                                                       geometry_maps_pred, 
+                                                       score_threshold=score_threshold, 
+                                                       iou_threshold=iou_threshold, 
+                                                       max_boxes=max_boxes)
+        boxes_pred.extend(mini_batch_boxes_pred)
+        
+    score_loss /= n_mini_batches
+    geometry_loss /= n_mini_batches
+    loss /= n_mini_batches
+    
+    print(data_dir)
+    message = "Score Loss: {:.6f}; Geo Loss: {:.6f}; Loss: {:.6f}".format(score_loss,
+                                                                          geometry_loss,
+                                                                          loss)
+    print(message)
+        
+    return boxes_pred
+   
+    
+with torch.no_grad():
+    if do_eval_trainset: 
+        boxes_pred_trainset = eval_dataset(train_data_dir)
+    if do_eval_devset:
+        boxes_pred_devset = eval_dataset(dev_data_dir)

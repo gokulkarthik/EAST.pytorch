@@ -29,8 +29,8 @@ def non_maximal_supression(score_maps_pred, geometry_maps_pred, score_threshold=
     score_maps_pred: [m, 1, 128, 128]
     geometry_maps_pred: [m, 8, 128, 128]
     """
-    score_maps_pred = score_maps_pred.numpy()
-    geometry_maps_pred = geometry_maps_pred.numpy()
+    score_maps_pred = score_maps_pred.cpu().numpy()
+    geometry_maps_pred = geometry_maps_pred.cpu().numpy()
     mini_batch_boxes_pred = []
     for score_map_pred, geometry_map_pred in zip(score_maps_pred, geometry_maps_pred): # [1, 128, 128], [8, 128, 128]
         
@@ -65,15 +65,25 @@ def non_maximal_supression(score_maps_pred, geometry_maps_pred, score_threshold=
                     geometry_map_pred_filtered.append(gmap1)
 
             geometry_map_pred_filtered = geometry_map_pred_filtered[:max_boxes]
-            mini_batch_boxes_pred.append(geometry_map_pred_filtered.tolist())
+            mini_batch_boxes_pred.append(geometry_map_pred_filtered.astype(np.int).tolist())
     
     return mini_batch_boxes_pred
 
 
-def send_message(slack_client, channel_id, message): 
+def send_message(slack_client, channel, message): 
     response = slack_client.chat_postMessage(
-        channel=channel_id,
+        channel=channel,
         text=message,
+        username='Deep Updater',
+        icon_emoji=':robot_face:')
+    return response
+
+def send_picture(slack_client, channel, title, picture, message=""): 
+    response = slack_client.files_upload(
+        channels=channel,
+        title=title,
+        file=picture,
+        message=message,
         username='Deep Updater',
         icon_emoji=':robot_face:')
     return response

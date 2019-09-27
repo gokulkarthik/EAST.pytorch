@@ -91,7 +91,7 @@ class EAST(nn.Module):
     def _init_weights(self):
         for m in self.modules():
             if isinstance(m, nn.Conv2d):
-                m.weight.data.zero_()
+                torch.nn.init.xavier_uniform_(m.weight)
                 if m.bias is not None:
                     m.bias.data.zero_()
 

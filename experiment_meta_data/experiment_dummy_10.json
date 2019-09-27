@@ -1,0 +1,1 @@
+{"geometry": "QUAD", "max_m_train": 240, "lambda_score": 1, "lambda_geometry": 1, "epochs": 20, "smoothed_l1_loss_beta": 1.0, "learning_rate": 0.001, "lr_scheduler_step_size": 100, "lr_scheduler_gamma": 0.94, "mini_batch_size": 24, "comments": "Model: xavier init; Score Loss: cross entropy ;   Geo Loss: L1 loss with text mask normalized by 8*512"}
