@@ -105,7 +105,6 @@ elif representation == "QUAD_multiple":
             annotation_representation_path = os.path.join(annotations_representation_dir, annotation_file)
             shapes_coords = load_shapes_coords(annotation_path) # [-1, 4, 2]
 
-            """
             for shape_coords in shapes_coords: # shape_coords: [4, 2]
             	polygon = Polygon(*[(x, y) for x, y in shape_coords])
             	xmin, ymin, xmax, ymax = polygon.bounds
@@ -117,20 +116,6 @@ elif representation == "QUAD_multiple":
             		for y in range(ymin, ymax+1, 4):
             			if polygon.encloses_point(Point(x, y)):
             				geometry_map[x//4, y//4] = (shape_coords - np.array([x, y])).flatten()
-            """
-
-            polygons = []
-            for shape_coords in shapes_coords: # shape_coords: [4, 2]
-            	polygon = Polygon(*[(x, y) for x, y in shape_coords])
-            	polygons.append(polygon)
-
-            for i in range(128):
-            	for j in range(128):
-            		px, py = i*4, j*4
-            		for polygon, shape_coords in zip(polygons, shapes_coords):
-            			if polygon.encloses_point(Point(px, py)):
-            				geometry_map[i, j] = (shape_coords - np.array([px, py])).flatten()
-            				break
  
             
             geometry_map = geometry_map.reshape(-1, 8)  
