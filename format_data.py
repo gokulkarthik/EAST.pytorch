@@ -85,7 +85,7 @@ if representation == "QUAD_single":
             
             np.savetxt(annotation_representation_path, geometry_map, fmt="%d", delimiter=",")
         
-elif representation = "QUAD_multiple":
+elif representation == "QUAD_multiple":
     
     for data_dir in [train_data_dir, dev_data_dir]:
         
