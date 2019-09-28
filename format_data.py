@@ -113,10 +113,9 @@ elif representation == "QUAD_multiple":
             
             for shape_coords in shapes_coords: # shape_coords: [4, 2]
                 rough_map = np.zeros([128, 128], dtype="int") # [128, 128]
-                scaled_shape_coords = (shape_coords // 4)# [4, 2]
-                scaled_shape_coords = np.expand_dims(scaled_shape_coords, axis=0).astype("int") # [1, 4, 2]
-                print(scaled_shape_coords)
-                cv2.fillPoly(rough_map, scaled_shape_coords, 1)
+                scaled_shape_coords = (shape_coords // 4).astype("int")# [4, 2]
+                result = cv2.fillPoly(rough_map, [scaled_shape_coords], 1)
+                print(sum(result))
                 print(rough_map.sum())
                 points = np.argwhere(rough_map)
                 print(points)
