@@ -116,7 +116,7 @@ elif representation == "QUAD_multiple":
                 scaled_shape_coords = (shape_coords // 4).astype("int") # [4, 2]
                 scaled_shape_coords = np.expand_dims(scaled_shape_coords, axis=0) # [1, 4, 2]
                 cv2.fillPoly(rough_map, scaled_shape_coords, 1)
-                points = rough_map.argwhere()
+                points = np.argwhere(rough_map)
                 for (x,y) in points:
                     geometry_map[x, y] = (shape_coords - np.array([x*4, y*4])).flatten().astype("int")     
                 
