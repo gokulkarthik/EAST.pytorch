@@ -6,6 +6,7 @@ import torch.nn as nn
 import numpy as np
 import pandas as pd
 from sympy import Polygon, Point
+import cv2
 
 config = {k:v for k,v in vars(Config).items() if not k.startswith("__")}
 
@@ -98,13 +99,28 @@ elif representation == "QUAD_multiple":
             
         for annotation_file in tqdm(os.listdir(annotations_dir)):
             
+            #score_map = np.zeros([128, 128], dtype="int")
             #geometry_map_raw = np.zeros([n_H, n_W, 8])
             geometry_map = np.zeros([128,128, 8])
             
             annotation_path = os.path.join(annotations_dir, annotation_file)
             annotation_representation_path = os.path.join(annotations_representation_dir, annotation_file)
             shapes_coords = load_shapes_coords(annotation_path) # [-1, 4, 2]
-
+    
+            #scaled_shapes_coords = (shapes_coords // 4).astype("int") # [-1, 4, 2]
+            #score_map = cv2.fillpoly(score_map, scaled_shapes_coords, 1) # [128, 128]
+            #score_map = np.expand_dims(score_map, axis=2) # [128, 128, 1]
+            
+            for shape_coords in shapes_coords: # shape_coords: [4, 2]
+                rough_map = np.zeros([128, 128], dtype="int") # [128, 128]
+                scaled_shape_coords = (shape_coords // 4).astype("int") # [4, 2]
+                scaled_shape_coords = np.expand_dims(scaled_shape_coords, axis=0) # [1, 4, 2]
+                cv2.fillpoly(rough_map, scaled_shape_coords, 1)
+                points = rough_map.argwhere()
+                for (x,y) in points:
+                    geometry_map[x, y] = (shape_coords - np.array([x*4, y*4])).flatten().astype("int")     
+                
+            """
             for shape_coords in shapes_coords: # shape_coords: [4, 2]
             	polygon = Polygon(*[(x, y) for x, y in shape_coords])
             	xmin, ymin, xmax, ymax = polygon.bounds
@@ -116,7 +132,7 @@ elif representation == "QUAD_multiple":
             		for y in range(ymin, ymax+1, 4):
             			if polygon.encloses_point(Point(x, y)):
             				geometry_map[x//4, y//4] = (shape_coords - np.array([x, y])).flatten()
- 
+            """
             
             geometry_map = geometry_map.reshape(-1, 8)  
 
