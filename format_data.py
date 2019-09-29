@@ -119,7 +119,8 @@ elif representation == "QUAD_multiple":
                 print(scaled_shape_coords)
                 print(points)
                 for (x,y) in points:
-                    geometry_map[x, y] = (shape_coords - np.array([x*4, y*4])).flatten().astype("int32")     
+                    geometry_map[x, y] = (shape_coords - np.array([x*4, y*4])).flatten().astype("int32")   
+                    input()  
                 
             """
             for shape_coords in shapes_coords: # shape_coords: [4, 2]
