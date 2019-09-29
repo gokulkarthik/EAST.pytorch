@@ -31,7 +31,7 @@ class Config:
     mini_batch_size = 24
     save_step = 5
     
-    experiment_name = "dummy"
+    experiment_name = "11"
     meta_data_dir = "./experiment_meta_data" # 1
     model_dir = "./experiment_model" # epochs/save_step
     loss_dir = "./experiment_loss" # 1
@@ -51,7 +51,7 @@ class Config:
                  "lr_scheduler_step_size": lr_scheduler_step_size,
                  "lr_scheduler_gamma": lr_scheduler_gamma,
                  "mini_batch_size":mini_batch_size,
-                 "comments": "Model: xavier init; Score Loss: cross entropy ;   Geo Loss: L1 loss with text mask normalized by 8*512"
+                 "comments": "Model: xavier init; Score Loss: cross entropy with beta; Geo Loss: L1 loss with text mask normalized by 8*512"
                 }
     
     trained_model_file = "./experiment_model/experiment_{}_epoch_{}.pth".format("4", "25") 
