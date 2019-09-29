@@ -61,22 +61,23 @@ def non_maximal_supression(score_maps_pred, geometry_maps_pred, score_threshold=
     geometry_maps_pred: [m, 8, 128, 128]
     """
     mini_batch_boxes_pred = []
-    for score_map_pred, geometry_map_pred in zip(score_maps_pred, geometry_maps_pred): # [1, 128, 128], [8, 128, 128]
+    for score_map_pred, geometry_map_pred in tqdm(zip(score_maps_pred, geometry_maps_pred), desc="NMS across eg."): 
+        # score_map_pred: [1, 128, 128]; geometry_map_pred: [8, 128, 128]
         
         score_mask = score_map_pred > score_threshold # [1, 128, 128]
         #print(score_mask)
         score_mask_repeat = np.repeat(score_mask, 8, axis=0) # [8, 128, 128]
         #print(score_mask_repeat)
         
-        score_map_pred_selected = score_map_pred[score_mask] # [-1]
-        #print(score_map_pred_selected)
-        selection_order = np.argsort(score_map_pred_selected)[::-1] # [-1]
-        #print(selection_order)
+        score_map_pred_selected = score_map_pred[score_mask] # [sel]
+        print(score_map_pred_selected)
+        selection_order = np.argsort(score_map_pred_selected)[::-1] # [sel]
+        print(selection_order)
         
         geometry_map_pred_selected = geometry_map_pred[score_mask_repeat].reshape(8, -1).T # [-1, 8]
-        #print(geometry_map_pred_selected)
+        print(geometry_map_pred_selected)
         geometry_map_pred_selected = geometry_map_pred_selected[selection_order] # [-1, 8]
-        #print(geometry_map_pred_selected)
+        print(geometry_map_pred_selected)
         
         if len(geometry_map_pred_selected):
             geometry_map_pred_filtered = [geometry_map_pred_selected[0]]
