@@ -70,11 +70,15 @@ def non_maximal_supression(score_maps_pred, geometry_maps_pred, score_threshold=
         #print(score_mask_repeat)
         
         score_map_pred_selected = score_map_pred[score_mask] # [sel]
+        print()
+        print(score_map_pred_selected.shape)
         print(score_map_pred_selected)
         selection_order = np.argsort(score_map_pred_selected)[::-1] # [sel]
         print(selection_order)
         
         geometry_map_pred_selected = geometry_map_pred[score_mask_repeat].reshape(8, -1).T # [-1, 8]
+        print()
+        print(geometry_map_pred_selected.shape)
         print(geometry_map_pred_selected)
         geometry_map_pred_selected = geometry_map_pred_selected[selection_order] # [-1, 8]
         print(geometry_map_pred_selected)
