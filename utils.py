@@ -9,6 +9,7 @@ from tqdm import tqdm
 config = {k:v for k,v in vars(Config).items() if not k.startswith("__")}
 
 score_threshold = config['score_threshold']
+nms_method = config['nms_method']
 iou_threshold = config['iou_threshold']
 max_boxes = config['max_boxes']
 
@@ -32,6 +33,7 @@ def compute_iou_using_sympy(gmap_a, gmap_b):
     
     return iou
 
+
 def compute_iou_using_cv2(gmap_a, gmap_b):
     
     gmap_a = gmap_a.reshape(-1, 2).astype(np.int32)
@@ -54,6 +56,22 @@ def compute_iou_using_cv2(gmap_a, gmap_b):
     #print(area_a, area_b, area_un, area_int, iou)
     
     return iou
+
+
+def check_overlap(gmap_a, gmap_b):
+
+    gmap_a = [(x, y) for x, y in gmap_a.reshape(-1, 2)]
+    gmap_b = [(x, y) for x, y in gmap_b.reshape(-1, 2)]
+     
+    poly_a = Polygon(*gmap_a)
+    poly_b = Polygon(*gmap_b)
+
+    for point in poly_a.vertices:
+        if poly_b.encloses(point)
+            return True
+
+    return False
+
 
 def non_maximal_supression(score_maps_pred, geometry_maps_pred, score_threshold=0.7, iou_threshold=0.4, max_boxes=10):
     """
@@ -90,15 +108,23 @@ def non_maximal_supression(score_maps_pred, geometry_maps_pred, score_threshold=
                 hired = True
                 for gmap2 in geometry_map_pred_filtered: # Existing
 
-                    iou = compute_iou_using_cv2(gmap1, gmap2)
-                    if iou >= iou_threshold:
-                        hired = False
-                        break
+                    if nms_method == "iou":
+                        iou = compute_iou_using_cv2(gmap1, gmap2)
+                        if iou >= iou_threshold:
+                            hired = False
+                            break
+                    elif nms_method == "overlap":
+                        does_overlap = check_overlap(gmap1, gmap2):
+                        if does_overlap:
+                            hired = False
+                            break
 
                 if hired == True:
                     geometry_map_pred_filtered.append(gmap1)
+                    if len(geometry_map_pred_filtered) >= max_boxes:
+                        break
 
-            geometry_map_pred_filtered = geometry_map_pred_filtered[:max_boxes]
+            #geometry_map_pred_filtered = geometry_map_pred_filtered[:max_boxes]
             mini_batch_boxes_pred.append(np.array(geometry_map_pred_filtered).astype(np.int).tolist())
     
     return mini_batch_boxes_pred
