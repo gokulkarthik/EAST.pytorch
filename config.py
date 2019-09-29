@@ -54,7 +54,7 @@ class Config:
                  "comments": "Model: xavier init; Score Loss: cross entropy with beta; Geo Loss: L1 loss with text mask normalized by 8*512"
                 }
     
-    trained_model_file = "./experiment_model/experiment_{}_epoch_{}.pth".format("4", "25") 
+    trained_model_file = "./experiment_model/experiment_{}_epoch_{}.pth".format("11", "50") 
     eval_mini_batch_size = 16
     test_mini_batch_size = 16
     
