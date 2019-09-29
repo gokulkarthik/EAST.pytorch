@@ -14,7 +14,7 @@ class Config:
     slack_epoch_step = 1
     slack_channel = "#updates" # "CNU04UXUN" 
 
-    max_m_train = 12000
+    max_m_train = 24000
     data_dir = "/home/{}/data-split/{}".format(user, lang)
     train_data_dir = os.path.join(data_dir, 'train')
     dev_data_dir = os.path.join(data_dir, 'dev')
@@ -25,13 +25,13 @@ class Config:
     lambda_geometry = 1
     epochs = 50
     smoothed_l1_loss_beta = 1.0
-    learning_rate = 0.005
+    learning_rate = 0.01
     lr_scheduler_step_size = 2000 # for every 4 epochs
     lr_scheduler_gamma = .94
     mini_batch_size = 24
     save_step = 5
     
-    experiment_name = "11"
+    experiment_name = "12"
     meta_data_dir = "./experiment_meta_data" # 1
     model_dir = "./experiment_model" # epochs/save_step
     loss_dir = "./experiment_loss" # 1
@@ -51,7 +51,7 @@ class Config:
                  "lr_scheduler_step_size": lr_scheduler_step_size,
                  "lr_scheduler_gamma": lr_scheduler_gamma,
                  "mini_batch_size":mini_batch_size,
-                 "comments": "Model: xavier init; Score Loss: cross entropy with beta; Geo Loss: L1 loss with text mask normalized by 8*512"
+                 "comments": "LR:0.01, Model: xavier init; Score Loss: cross entropy with beta; Geo Loss: L1 loss with text mask normalized by 8*512"
                 }
     
     trained_model_file = "./experiment_model/experiment_{}_epoch_{}.pth".format("11", "50") 
