@@ -118,7 +118,7 @@ elif representation == "QUAD_multiple":
                 points = np.argwhere(rough_map)
                 for (y,x) in points:  # x, y -> image coords
                     shift = shape_coords - np.array([x*4, y*4])
-                    shift = shift.flatten.astype("int32")
+                    shift = shift.flatten().astype("int32")
                     geometry_map[y, x] = shift
                 
             """
