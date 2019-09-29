@@ -50,7 +50,7 @@ def compute_iou_using_cv2(gmap_a, gmap_b):
     area_int = area_a + area_b - area_un
     iou = area_int/area_un
     
-    print(area_a, area_b, area_un, area_int, iou)
+    #print(area_a, area_b, area_un, area_int, iou)
     
     return iou
 
