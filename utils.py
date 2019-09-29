@@ -11,7 +11,7 @@ score_threshold = config['score_threshold']
 iou_threshold = config['iou_threshold']
 max_boxes = config['max_boxes']
 
-def compute_iou(gmap_a, gmap_b):
+def compute_iou_using_sympy(gmap_a, gmap_b):
     
     gmap_a = [(x, y) for x, y in gmap_a.reshape(-1, 2)]
     gmap_b = [(x, y) for x, y in gmap_b.reshape(-1, 2)]
@@ -19,15 +19,39 @@ def compute_iou(gmap_a, gmap_b):
     poly_a = Polygon(*gmap_a)
     poly_b = Polygon(*gmap_b)
     
-    print([map(sympy.Float, p) for p in poly_a.vertices])
-    print([map(sumpy.Float, p) for p in poly_b.vertices])
+    #print([map(sympy.Float, p) for p in poly_a.vertices])
+    #print([map(sumpy.Float, p) for p in poly_b.vertices])
 
     intersection_ = intersection(poly_a, poly_b)
-    print(intersection_)
-    print([tuple(p) for p in intersection_.vertices])
+    #print(intersection_)
+    #print([tuple(p) for p in intersection_.vertices])
     area_int = np.abs(np.float(intersection(poly_a, poly_b)))
     area_un = np.abs(np.float(poly_a.area)) + np.abs(np.float(poly_b.area)) + area_int + 10e-6
     iou = area_int/area_un
+    
+    return iou
+
+def compute_iou_using_cv2(gmap_a, gmap_b):
+    
+    gmap_a = gmap_a.reshape(-1, 2).astype(np.int32)
+    gmap_b = gmap_b.reshape(-1, 2).astype(np.int32)
+     
+    ref_map_a = np.zeros(shape=(512, 512))
+    ref_map_b = np.zeros_like(ref_map_a)
+    ref_map_un = np.zeros_like(ref_map_a)
+
+    cv2.fillPoly(ref_map_a, gmap_a, 1)
+    cv2.fillPoly(ref_map_b, gmap_b, 1)
+    cv2.fillPoly(ref_map_int, gmap_a, 1)
+    cv2.fillPoly(ref_map_int, gmap_b, 1)
+
+    area_a = ref_map_a.sum()
+    area_b = ref_map_b.sum()
+    area_un = ref_map_un.sum()
+    area_int = area_a + area_b - area_un
+    iou = area_int/area_un
+    
+    print(area_a, area_b, area_un, area_int, iou)
     
     return iou
 
@@ -61,7 +85,7 @@ def non_maximal_supression(score_maps_pred, geometry_maps_pred, score_threshold=
                 hired = True
                 for gmap2 in geometry_map_pred_filtered: # Existing
 
-                    iou = compute_iou(gmap1, gmap2)
+                    iou = compute_iou_using_cv2(gmap1, gmap2)
                     if iou >= iou_threshold:
                         hired = False
                         break
