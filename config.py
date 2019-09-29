@@ -14,7 +14,7 @@ class Config:
     slack_epoch_step = 1
     slack_channel = "#updates" # "CNU04UXUN" 
 
-    max_m_train = 120
+    max_m_train = 12000
     data_dir = "/home/{}/data-split/{}".format(user, lang)
     train_data_dir = os.path.join(data_dir, 'train')
     dev_data_dir = os.path.join(data_dir, 'dev')
