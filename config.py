@@ -7,7 +7,7 @@ class Config:
 
     image_size = [512, 512, 3]
     geometry = "QUAD" # ["RBOX", "QUAD"]
-    label_method = "multiple" # ["single", "multiple"]
+    label_method = "single" # ["single", "multiple"]
     use_formatted_data = True
     
     use_slack = True
