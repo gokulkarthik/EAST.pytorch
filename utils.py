@@ -114,7 +114,7 @@ def non_maximal_supression(score_maps_pred, geometry_maps_pred, score_threshold=
                             hired = False
                             break
                     elif nms_method == "overlap":
-                        does_overlap = check_overlap(gmap1, gmap2):
+                        does_overlap = check_overlap(gmap1, gmap2)
                         if does_overlap:
                             hired = False
                             break
