@@ -61,7 +61,7 @@ def non_maximal_supression(score_maps_pred, geometry_maps_pred, score_threshold=
     geometry_maps_pred: [m, 8, 128, 128]
     """
     mini_batch_boxes_pred = []
-    for score_map_pred, geometry_map_pred in tqdm(zip(score_maps_pred, geometry_maps_pred), desc="NMS across eg."): 
+    for score_map_pred, geometry_map_pred in zip(score_maps_pred, geometry_maps_pred): 
         # score_map_pred: [1, 128, 128]; geometry_map_pred: [8, 128, 128]
         
         score_mask = score_map_pred > score_threshold # [1, 128, 128]
@@ -131,10 +131,15 @@ def send_picture(slack_client, channel, title, picture, message=""):
 def draw_bbs(image, bbs, color=(0, 0, 255), thickness=1): # BGR
     
     for bb in bbs:
-        image = cv2.line(image, (bb[0],bb[1]), (bb[2],bb[3]), color, thickness=thickness)
-        image = cv2.line(image, (bb[2],bb[3]), (bb[4],bb[5]), color, thickness=thickness)
-        image = cv2.line(image, (bb[4],bb[5]), (bb[6],bb[7]), color, thickness=thickness)
-        image = cv2.line(image, (bb[6],bb[7]), (bb[0],bb[1]), color, thickness=thickness)
+        try:
+            image = cv2.line(image, (bb[0],bb[1]), (bb[2],bb[3]), color, thickness=thickness)
+            image = cv2.line(image, (bb[2],bb[3]), (bb[4],bb[5]), color, thickness=thickness)
+            image = cv2.line(image, (bb[4],bb[5]), (bb[6],bb[7]), color, thickness=thickness)
+            image = cv2.line(image, (bb[6],bb[7]), (bb[0],bb[1]), color, thickness=thickness)
+        except:
+            print("WARNING")
+            print(bbs.shape)
+            print(bb)
         
     return image
 
