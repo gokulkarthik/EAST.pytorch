@@ -13,6 +13,7 @@ nms_method = config['nms_method']
 iou_threshold = config['iou_threshold']
 max_boxes = config['max_boxes']
 
+
 def compute_iou_using_sympy(gmap_a, gmap_b):
     
     gmap_a = [(x, y) for x, y in gmap_a.reshape(-1, 2)]
@@ -68,10 +69,17 @@ def check_overlap(gmap_a, gmap_b):
 
     for point in poly_a.vertices:
         if poly_b.encloses(point):
-            return True
+            return 1
 
-    return False
+    return -1
 
+
+if nms_method == "iou":
+    filter_function = compute_iou_using_cv2
+    max_threshold = iou_threshold
+elif nms_method == "overlap":
+    filter_function = check_overlap
+    max_threshold = 0
 
 def non_maximal_supression(score_maps_pred, geometry_maps_pred, score_threshold=0.7, iou_threshold=0.4, max_boxes=10):
     """
@@ -108,16 +116,10 @@ def non_maximal_supression(score_maps_pred, geometry_maps_pred, score_threshold=
                 hired = True
                 for gmap2 in geometry_map_pred_filtered: # Existing
 
-                    if nms_method == "iou":
-                        iou = compute_iou_using_cv2(gmap1, gmap2)
-                        if iou >= iou_threshold:
-                            hired = False
-                            break
-                    elif nms_method == "overlap":
-                        does_overlap = check_overlap(gmap1, gmap2)
-                        if does_overlap:
-                            hired = False
-                            break
+                    val = filter_function(gmap1, gmap2)
+                    if val >= max_threshold:
+                        hired = False
+                        break
 
                 if hired == True:
                     geometry_map_pred_filtered.append(gmap1)
