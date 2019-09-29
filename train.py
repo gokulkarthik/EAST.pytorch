@@ -86,7 +86,7 @@ print("Number of epochs:", epochs)
 print("Number of mini batches:", n_mini_batches) 
 
 
-model = EAST(geometry=geometry)
+model = EAST(geometry=geometry, label_method=label_method)
 model = model.train()
 loss_function = LossFunction()
 if cuda:

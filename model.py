@@ -10,10 +10,12 @@ config = {k:v for k,v in vars(Config).items() if not k.startswith("__")}
 class EAST(nn.Module):
 
 
-    def __init__(self, geometry="QUAD"):
+    def __init__(self, geometry="QUAD", label_method="single"):
         super(EAST, self).__init__()
 
         self.geometry = geometry
+        self.label_method = label_method
+        self.representation = geometry + "_" + label_method
 
         ## Feature Extraction Essentials
         # conv1
@@ -76,11 +78,13 @@ class EAST(nn.Module):
 
         ## Output Layer Essentials
         self.out_score = nn.Sequential(nn.Conv2d(32, 1, 1), nn.Sigmoid())
-        if self.geometry == "RBOX":
+        if self.representation == "QUAD_single":
+            self.out_geo = nn.Sequential(nn.Conv2d(32, 8, 1), nn.Sigmoid())
+        elif self.representation == "QUAD_multiple":
+            self.out_geo = nn.Sequential(nn.Conv2d(32, 8, 1))
+        elif self.representation == "RBOX_single":
             self.out_geo = nn.Sequential(nn.Conv2d(32, 4, 1), nn.Sigmoid())
             self.out_angle = nn.Sequential(nn.Conv2d(32, 1, 1), nn.Sigmoid())
-        elif self.geometry == "QUAD":
-            self.out_geo = nn.Sequential(nn.Conv2d(32, 8, 1), nn.Sigmoid())
 
         self._init_weights()
 
@@ -173,13 +177,15 @@ class EAST(nn.Module):
 
 
         score_map = self.out_score(g[3])
-        geo_map = self.out_geo(g[3]) * 512
-        if self.geometry == "RBOX":
+        geo_map = self.out_geo(g[3])
+        if self.representation == "QUAD_single":
+            geometry_map = geo_map * 512
+        elif self.representation == "QUAD_multiple":
+            geometry_map = geo_map
+        elif self.representation == "RBOX_single":
             angle_map = self.out_angle(g[3])
             angle_map = (angle_map - 0.5) * math.pi / 2
             geometry_map = torch.cat((geo_map, angle_map), dim=1)
-        elif self.geometry == "QUAD":
-            geometry_map = geo_map
 
         #print("pool1", pool5.size())
         #print("h1", h[0].size())
