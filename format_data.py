@@ -112,15 +112,14 @@ elif representation == "QUAD_multiple":
             #score_map = np.expand_dims(score_map, axis=2) # [128, 128, 1]
             
             for shape_coords in shapes_coords: # shape_coords: [4, 2]
-                rough_map = np.zeros([128, 128], dtype="int") # [128, 128]
-                scaled_shape_coords = (shape_coords // 4).astype("int")# [4, 2]
-                rough_map_2 = cv2.fillPoly(rough_map, [scaled_shape_coords], 1)
-                print(rough_map_2)
-                print(np.array(rough_map_2))
+                rough_map = np.zeros([128, 128], dtype="int32") # [128, 128]
+                scaled_shape_coords = (shape_coords // 4).astype("int32")# [4, 2]
+                cv2.fillPoly(rough_map, [scaled_shape_coords], 1)
                 points = np.argwhere(rough_map)
+                print(scaled_shape_coords)
                 print(points)
                 for (x,y) in points:
-                    geometry_map[x, y] = (shape_coords - np.array([x*4, y*4])).flatten().astype("int")     
+                    geometry_map[x, y] = (shape_coords - np.array([x*4, y*4])).flatten().astype("int32")     
                 
             """
             for shape_coords in shapes_coords: # shape_coords: [4, 2]
