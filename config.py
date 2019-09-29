@@ -26,7 +26,7 @@ class Config:
     epochs = 50
     smoothed_l1_loss_beta = 1.0
     learning_rate = 0.01
-    lr_scheduler_step_size = 2000 # for every 4 epochs
+    lr_scheduler_step_size = 2000 # for every 2 epochs
     lr_scheduler_gamma = .94
     mini_batch_size = 24
     save_step = 5
