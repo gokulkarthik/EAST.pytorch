@@ -52,7 +52,7 @@ def eval_dataset(data_dir):
     data_images_dir = os.path.join(data_dir, "images")
     data_annotations_dir = os.path.join(data_dir, "annotations")
     if use_formatted_data:
-        train_annotations_dir = train_annotations_dir + "_" + representation
+        data_annotations_dir = data_annotations_dir + "_" + representation
     data_images_pred_dir = os.path.join(data_dir, "images_pred")
     data_annotations_pred_dir = os.path.join(data_dir, "annotations_pred")
     
