@@ -17,7 +17,7 @@ def compute_iou(gmap_a, gmap_b):
     gmap_b = [(x, y) for x, y in gmap_b.reshape(-1, 2)]
      
     poly_a = Polygon(*gmap_a)
-    ploy_b = Polygon(*gmap_b)
+    poly_b = Polygon(*gmap_b)
     
     area_int = intersection(poly_a, poly_b)
     area_un = poly_a.area + ploy_b.area + area_int + 10e-6
