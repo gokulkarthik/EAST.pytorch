@@ -20,7 +20,7 @@ def compute_iou(gmap_a, gmap_b):
     poly_b = Polygon(*gmap_b)
     
     area_int = intersection(poly_a, poly_b)
-    area_un = poly_a.area + ploy_b.area + area_int + 10e-6
+    area_un = poly_a.area + poly_b.area + area_int + 10e-6
     iou = area_int/area_un
     
     return iou
