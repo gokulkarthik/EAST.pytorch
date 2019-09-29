@@ -67,7 +67,7 @@ def check_overlap(gmap_a, gmap_b):
     poly_b = Polygon(*gmap_b)
 
     for point in poly_a.vertices:
-        if poly_b.encloses(point)
+        if poly_b.encloses(point):
             return True
 
     return False
