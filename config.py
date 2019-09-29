@@ -62,4 +62,4 @@ class Config:
     score_threshold = 0.7
     nms_method = "iou" # ["overlap", "iou"]
     iou_threshold = 0.05
-    max_boxes = 5
+    max_boxes = 10
