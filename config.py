@@ -23,13 +23,13 @@ class Config:
     cuda = True
     lambda_score = 1
     lambda_geometry = 1
-    epochs = 25
+    epochs = 50
     smoothed_l1_loss_beta = 1.0
     learning_rate = 0.005
     lr_scheduler_step_size = 2000 # for every 4 epochs
     lr_scheduler_gamma = .94
     mini_batch_size = 24
-    save_step = 50
+    save_step = 5
     
     experiment_name = "dummy"
     meta_data_dir = "./experiment_meta_data" # 1
