@@ -4,6 +4,7 @@ import numpy as np
 import cv2
 from sympy import Polygon
 from sympy.geometry import intersection
+from tqdm import tqdm
 
 config = {k:v for k,v in vars(Config).items() if not k.startswith("__")}
 

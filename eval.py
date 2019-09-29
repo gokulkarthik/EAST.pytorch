@@ -96,12 +96,21 @@ def eval_dataset(data_dir):
 
         if representation == "QUAD_multiple":
         	geometry_maps_pred = reverse_shift(geometry_maps_pred) # [8, 128, 128]
+
+        print("NMS Started")
+        nms_tic = time.time()
         
         mini_batch_boxes_pred = non_maximal_supression(score_maps_pred, 
                                                        geometry_maps_pred, 
                                                        score_threshold=score_threshold, 
                                                        iou_threshold=iou_threshold, 
                                                        max_boxes=max_boxes)
+
+        
+        nms_toc = time.time()
+        elapsed_time = time.strftime("%H:%M:%S", time.gmtime(nms_toc - nms_tic))
+        print("NMS Ended", "Duration", toc-tic)
+
         boxes_pred.extend(mini_batch_boxes_pred)
         
         for image_name, eg_boxes_pred in zip(image_names, mini_batch_boxes_pred):
