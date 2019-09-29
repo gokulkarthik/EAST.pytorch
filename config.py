@@ -58,6 +58,6 @@ class Config:
     eval_mini_batch_size = 16
     test_mini_batch_size = 16
     
-    score_threshold = 0
+    score_threshold = 0.5
     iou_threshold = 0.1
     max_boxes = 5
