@@ -88,7 +88,7 @@ if representation == "QUAD_single":
         
 elif representation == "QUAD_multiple":
     
-    for data_dir in [train_data_dir, dev_data_dir]:
+    for data_dir in [dev_data_dir, train_data_dir]:
         
         print("Processing", data_dir, "...")
         annotations_dir = os.path.join(data_dir, "annotations")
@@ -116,11 +116,10 @@ elif representation == "QUAD_multiple":
                 scaled_shape_coords = (shape_coords // 4).astype("int32")# [4, 2]
                 cv2.fillPoly(rough_map, [scaled_shape_coords], 1)
                 points = np.argwhere(rough_map)
-                print(scaled_shape_coords)
-                print(points)
-                for (x,y) in points:
-                    geometry_map[x, y] = (shape_coords - np.array([x*4, y*4])).flatten().astype("int32")   
-                    input()  
+                for (y,x) in points:  # x, y -> image coords
+                    shift = shape_coords - np.array([x*4, y*4])
+                    shift = shift.flatten.astype("int32")
+                    geometry_map[y, x] = shift
                 
             """
             for shape_coords in shapes_coords: # shape_coords: [4, 2]
