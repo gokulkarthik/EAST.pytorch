@@ -131,15 +131,11 @@ def send_picture(slack_client, channel, title, picture, message=""):
 def draw_bbs(image, bbs, color=(0, 0, 255), thickness=1): # BGR
     
     for bb in bbs:
-        try:
-            image = cv2.line(image, (bb[0],bb[1]), (bb[2],bb[3]), color, thickness=thickness)
-            image = cv2.line(image, (bb[2],bb[3]), (bb[4],bb[5]), color, thickness=thickness)
-            image = cv2.line(image, (bb[4],bb[5]), (bb[6],bb[7]), color, thickness=thickness)
-            image = cv2.line(image, (bb[6],bb[7]), (bb[0],bb[1]), color, thickness=thickness)
-        except:
-            print("WARNING")
-            print(bbs.shape)
-            print(bb)
+        
+        image = cv2.line(image, (bb[0],bb[1]), (bb[2],bb[3]), color, thickness=thickness)
+        image = cv2.line(image, (bb[2],bb[3]), (bb[4],bb[5]), color, thickness=thickness)
+        image = cv2.line(image, (bb[4],bb[5]), (bb[6],bb[7]), color, thickness=thickness)
+        image = cv2.line(image, (bb[6],bb[7]), (bb[0],bb[1]), color, thickness=thickness)
         
     return image
 

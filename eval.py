@@ -52,7 +52,7 @@ def eval_dataset(data_dir):
     data_images_dir = os.path.join(data_dir, "images")
     data_annotations_dir = os.path.join(data_dir, "annotations")
     if use_formatted_data:
-        data_annotations_dir = data_annotations_dir + "_" + representation
+        data_annotations_formatted_dir = data_annotations_dir + "_" + representation
     data_images_pred_dir = os.path.join(data_dir, "images_pred")
     data_annotations_pred_dir = os.path.join(data_dir, "annotations_pred")
     
@@ -61,7 +61,7 @@ def eval_dataset(data_dir):
     if not os.path.exists(data_annotations_pred_dir):
         os.mkdir(data_annotations_pred_dir)
     
-    dataset = ImageDataSet(data_images_dir, data_annotations_dir)
+    dataset = ImageDataSet(data_images_dir, data_annotations_formatted_dir)
     data_loader = torch.utils.data.DataLoader(dataset, batch_size=eval_mini_batch_size, shuffle=True)
 
     score_loss, geometry_loss, loss = 0, 0, 0
