@@ -19,9 +19,9 @@ def compute_iou(gmap_a, gmap_b):
     poly_a = Polygon(*gmap_a)
     poly_b = Polygon(*gmap_b)
     
-    print([tuple(p) for p in poly_a])
-    print([tuple(p) for p in poly_b])
-    print([tuple(p) for p in intersection(poly_a, poly_b)])
+    print([tuple(p) for p in poly_a.vertices])
+    print([tuple(p) for p in poly_b.vertices])
+    print([tuple(p) for p in intersection(poly_a, poly_b).vertices])
     area_int = np.abs(np.float(intersection(poly_a, poly_b)))
     area_un = np.abs(np.float(poly_a.area)) + np.abs(np.float(poly_b.area)) + area_int + 10e-6
     iou = area_int/area_un
