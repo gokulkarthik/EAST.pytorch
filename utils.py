@@ -40,10 +40,9 @@ def compute_iou_using_cv2(gmap_a, gmap_b):
     ref_map_b = np.zeros_like(ref_map_a)
     ref_map_un = np.zeros_like(ref_map_a)
 
-    cv2.fillPoly(ref_map_a, gmap_a, 1)
-    cv2.fillPoly(ref_map_b, gmap_b, 1)
-    cv2.fillPoly(ref_map_int, gmap_a, 1)
-    cv2.fillPoly(ref_map_int, gmap_b, 1)
+    cv2.fillPoly(ref_map_a, [gmap_a], 1)
+    cv2.fillPoly(ref_map_b, [gmap_b], 1)
+    cv2.fillPoly(ref_map_un, [gmap_a, gmap_b], 1)
 
     area_a = ref_map_a.sum()
     area_b = ref_map_b.sum()
