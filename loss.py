@@ -46,10 +46,14 @@ class LossFunction(nn.Module):
         """
 
         m = Y_true_score.shape[0]
+        n_cells = torch.numel(Y_true_score)
+        n_pos_cells = Y_true_score.sum()
+        n_neg_cells = n_cells - n_pos_cells
         beta = 1 - (Y_true_score.sum()/torch.numel(Y_true_score)) # ratio of 0s
         loss_of_score_pos = -beta * Y_true_score * torch.log(Y_pred_score) # [m, 1, 128, 128]
         loss_of_score_neg = -(1 - beta) * (1 - Y_true_score) * torch.log(1 - Y_pred_score) # [m, 1, 128, 128]
-        loss_of_score = torch.sum(loss_of_score_pos + loss_of_score_neg) / torch.numel(Y_true_score)
+        normalization_factor = (beta * n_pos_cells) + ((1-beta)* n_neg_cells)
+        loss_of_score = torch.sum(loss_of_score_pos + loss_of_score_neg) / normalization_factor
 
         return loss_of_score
 
