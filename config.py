@@ -52,9 +52,9 @@ class Config:
                  "lr_scheduler_gamma": lr_scheduler_gamma,
                  "mini_batch_size":mini_batch_size,
                  "comments": """
-                 LR:0.01, 
+                 LR:0.1, 
                  Model: xavier init;
-                 Score Loss: 100 * cross entropy with beta; 
+                 Score Loss:  cross entropy with beta; 
                  Geo Loss: L1 loss with text mask normalized by 8*512
                  """
                 }
