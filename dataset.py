@@ -31,11 +31,18 @@ if label_method == "multiple":
     raise NotImplementedError("Only implemented for the single label method")
 
 
-def list_images(images_dir):
+def list_images(images_dir, store=False):
  
     names = list(os.listdir(images_dir))
-    np.random.shuffle(names)
     image_names = names[:max_m_train]
+    np.random.shuffle(image_names)    
+
+    if store:
+        data_dir = "/".join(images_dir.split("/")[:-1])
+        file = os.path.join(data_dir, 'train_image_names.csv')
+        with open(file, 'w', newline='') as myfile:
+            wr = csv.writer(myfile, quoting=csv.QUOTE_ALL)
+            wr.writerow(image_names)
  
     return image_names
 
@@ -163,7 +170,7 @@ class ImageDataSet(torch.utils.data.Dataset):
 
         self.images_dir = images_dir
         self.annotations_dir = annotations_dir 
-        self.image_names = list_images(images_dir)
+        self.image_names = list_images(images_dir, store=True)
 
     def __getitem__(self, index):
 
@@ -191,7 +198,7 @@ class ImageTestDataSet(torch.utils.data.Dataset):
     def __init__(self, images_dir):
 
         self.images_dir = images_dir
-        self.image_names = list_images(images_dir)
+        self.image_names = list_images(images_dir, store=False)
 
     def __getitem__(self, index):
 

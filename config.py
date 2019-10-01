@@ -14,7 +14,7 @@ class Config:
     slack_epoch_step = 1
     slack_channel = "#updates" # "CNU04UXUN" 
 
-    max_m_train = 24000
+    max_m_train = 12000
     data_dir = "/home/{}/data-split/{}".format(user, lang)
     train_data_dir = os.path.join(data_dir, 'train')
     dev_data_dir = os.path.join(data_dir, 'dev')
@@ -23,9 +23,9 @@ class Config:
     cuda = True
     lambda_score = 1
     lambda_geometry = 1
-    epochs = 50
+    epochs = 20
     smoothed_l1_loss_beta = 1.0
-    learning_rate = 0.1
+    learning_rate = 0.01
     lr_scheduler_step_size = 2000 # for every 2 epochs
     lr_scheduler_gamma = .94
     mini_batch_size = 24
