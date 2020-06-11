@@ -1,5 +1,6 @@
 # EAST Text Detection Model in PyTorch
 ### - with single QUAD Representation of Bounding Boxes 
+A PyTorch implementation of EAST: An Efficient and Accurate Scene Text Detector for bounding box detection
 
 ## References: 
 
